@@ -10,6 +10,7 @@
 " Note-buffer mappings (STRICT; do NOT auto-create; error if missing):
 "   g:lan_note_map_add_block   default: <Leader>lanb   -> TODAY Blocking に "- [ ] " を追加して挿入へ
 "   g:lan_note_map_add_queue   default: <Leader>lanq   -> TODAY Queue    に "- [ ] " を追加して挿入へ
+"   g:lan_note_map_add_note    default: <Leader>lann   -> TODAY Notes    に "- (" を追加して挿入へ
 "   g:lan_note_map_toggle      default: <Leader>lanx   -> 親子も含めて完了トグル（階層対応）
 
 if exists('g:loaded_lan_plugin')
@@ -27,6 +28,9 @@ if !exists('g:lan_note_map_add_block')
 endif
 if !exists('g:lan_note_map_add_queue')
   let g:lan_note_map_add_queue = '<Leader>lanq'
+endif
+if !exists('g:lan_note_map_add_note')
+  let g:lan_note_map_add_note = '<Leader>lann'
 endif
 if !exists('g:lan_note_map_toggle')
   let g:lan_note_map_toggle = '<Leader>lanx'
@@ -66,6 +70,10 @@ function! s:maybe_define_note_maps() abort
   if empty(maparg(g:lan_note_map_add_queue, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_add_queue .
           \ ' :call <SID>lan_note_insert_strict("queue")<CR>'
+  endif
+  if empty(maparg(g:lan_note_map_add_note, 'n'))
+    execute 'nnoremap <silent><buffer> ' . g:lan_note_map_add_note .
+          \ ' :call <SID>lan_note_insert_strict("memo")<CR>'
   endif
   if empty(maparg(g:lan_note_map_toggle, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle .
@@ -222,7 +230,7 @@ endfunction
 
 function! s:append_lines_under_buf(today_lnum, header_text, lines) abort
   if empty(a:lines)
-    return
+    return 0
   endif
 
   let l:today_end = s:section_end_buf(a:today_lnum)
@@ -255,6 +263,7 @@ function! s:append_lines_under_buf(today_lnum, header_text, lines) abort
   endif
 
   call append(l:ins, a:lines)
+  return l:ins + len(a:lines)
 endfunction
 
 function! s:insert_today_template_buf() abort
@@ -298,24 +307,41 @@ function! s:lan_note_insert_strict(kind) abort
     endif
 
     let l:today_end = s:section_end_buf(l:today_lnum)
-    let l:hdr = (a:kind ==# 'block') ? s:HDR_BLOCK : s:HDR_QUEUE
+    if a:kind ==# 'block'
+      let l:hdr = s:HDR_BLOCK
+    elseif a:kind ==# 'queue'
+      let l:hdr = s:HDR_QUEUE
+    else
+      let l:hdr = s:HDR_NOTES
+    endif
     let l:h = s:find_subheader_in_range_buf(l:today_lnum, l:today_end, l:hdr)
     if l:h == 0
       call s:die('Missing required header in TODAY: ' . l:hdr)
     endif
 
-    call s:append_lines_under_buf(l:today_lnum, l:hdr, ['- [ ] '])
-    " 追加した行（末尾）に移動して行末で挿入へ
-    " 直近の "- [ ]" を下に探す（1回だけ）
-    let l:pos = search('^\s*-\s\[ \]\s*$', 'nW')
-    if l:pos == 0
-      " 念のため：末尾に移動して挿入へ
-      call cursor(line('$'), 1)
+    if a:kind ==# 'memo'
+      let l:inserted = s:append_lines_under_buf(l:today_lnum, l:hdr, ['- ('])
+      if l:inserted == 0
+        call cursor(line('$'), 1)
+        startinsert!
+        return
+      endif
+      call cursor(l:inserted, 1)
       startinsert!
-      return
+    else
+      let l:inserted = s:append_lines_under_buf(l:today_lnum, l:hdr, ['- [ ] '])
+      " 追加した行（末尾）に移動して行末で挿入へ
+      " 直近の "- [ ]" を下に探す（1回だけ）
+      let l:pos = search('^\s*-\s\[ \]\s*$', 'nW')
+      if l:pos == 0
+        " 念のため：末尾に移動して挿入へ
+        call cursor(line('$'), 1)
+        startinsert!
+        return
+      endif
+      call cursor(l:pos, 1)
+      startinsert!
     endif
-    call cursor(l:pos, 1)
-    startinsert!
   catch /^lan_error$/
   endtry
 endfunction
