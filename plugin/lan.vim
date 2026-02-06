@@ -5,7 +5,7 @@
 "   :Lan            ノートを開く。今日が無ければ先頭に作成し、前日の未完了を引継。
 "   :Lanb {text}    ノートを開かずに、今日の Blocking Tasks 末尾へ "- [ ] {text}" を追記。
 "   :Lanq {text}    ノートを開かずに、今日の Queue 末尾へ "- [ ] {text}" を追記。
-"   :Lanm {text}    ノートを開かずに、今日の Notes 末尾へ "- ({text})" を追記。
+"   :Lann {text}    ノートを開かずに、今日の Notes 末尾へ "- ({text})" を追記。
 "
 " Note-buffer mappings (STRICT; do NOT auto-create; error if missing):
 "   g:lan_note_map_add_block   default: <Leader>lanb   -> TODAY Blocking に "- [ ] " を追加して挿入へ
@@ -45,7 +45,7 @@ let s:HDR_NOTES = '### 🧠 Notes'
 command! Lan  call s:lan_open()
 command! -nargs=+ Lanb call s:lan_add_file('block', <q-args>)
 command! -nargs=+ Lanq call s:lan_add_file('queue', <q-args>)
-command! -nargs=+ Lanm call s:lan_add_file('memo',  <q-args>)
+command! -nargs=+ Lann call s:lan_add_file('memo',  <q-args>)
 
 " ---------------- mappings (note buffer only) ----------------
 augroup lan_note_maps
@@ -321,7 +321,7 @@ function! s:lan_note_insert_strict(kind) abort
 endfunction
 
 " ===============================
-"  File-based (Lanb/Lanq/Lanm): do NOT open buffer
+"  File-based (Lanb/Lanq/Lann): do NOT open buffer
 " ===============================
 
 function! s:find_line_exact_list(lines, text) abort
@@ -496,7 +496,7 @@ function! s:insert_at_section_end_list(lines, today_idx, header_text, new_lines)
   return l:out
 endfunction
 
-" Lanb/Lanq/Lanm
+" Lanb/Lanq/Lann
 function! s:lan_add_file(kind, text) abort
   let l:path = expand(g:lan_file)
 
