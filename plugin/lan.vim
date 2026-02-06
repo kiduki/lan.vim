@@ -5,12 +5,12 @@
 "   :Lan            ノートを開く。今日が無ければ先頭に作成し、前日の未完了を引継。
 "   :Lanb {text}    ノートを開かずに、今日の Blocking Tasks 末尾へ "- [ ] {text}" を追記。
 "   :Lanq {text}    ノートを開かずに、今日の Queue 末尾へ "- [ ] {text}" を追記。
-"   :Lann {text}    ノートを開かずに、今日の Notes 末尾へ "- ({text})" を追記。
+"   :Lann {text}    ノートを開かずに、今日の Notes 末尾へ "- {text}" を追記。
 "
 " Note-buffer mappings (STRICT; do NOT auto-create; error if missing):
 "   g:lan_note_map_add_block   default: <Leader>lanb   -> TODAY Blocking に "- [ ] " を追加して挿入へ
 "   g:lan_note_map_add_queue   default: <Leader>lanq   -> TODAY Queue    に "- [ ] " を追加して挿入へ
-"   g:lan_note_map_add_note    default: <Leader>lann   -> TODAY Notes    に "- (" を追加して挿入へ
+"   g:lan_note_map_add_note    default: <Leader>lann   -> TODAY Notes    に "- " を追加して挿入へ
 "   g:lan_note_map_toggle      default: <Leader>lanx   -> 親子も含めて完了トグル（階層対応）
 
 if exists('g:loaded_lan_plugin')
@@ -320,7 +320,7 @@ function! s:lan_note_insert_strict(kind) abort
     endif
 
     if a:kind ==# 'memo'
-      let l:inserted = s:append_lines_under_buf(l:today_lnum, l:hdr, ['- ('])
+      let l:inserted = s:append_lines_under_buf(l:today_lnum, l:hdr, ['- '])
       if l:inserted == 0
         call cursor(line('$'), 1)
         startinsert!
@@ -549,7 +549,7 @@ function! s:lan_add_file(kind, text) abort
       let l:add_lines = ['- [ ] ' . a:text]
     else
       let l:hdr = s:HDR_NOTES
-      let l:add_lines = ['- (' . a:text . ')']
+      let l:add_lines = ['- ' . a:text]
     endif
 
     " テンプレが壊れている場合はエラー
