@@ -38,3 +38,13 @@ let g:lan_note_map_toggle    = '<Leader>lanx'
   TODAY の **Notes** に `- ` を追加して挿入。
 - `g:lan_note_map_toggle`（既定: `<Leader>lanx`）  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
+
+----
+
+以下のサイトを見て、vimプラグインを作った（ChatGPTが）
+https://blog.aroka.net/entry/2026/01/11/212640
+
+ChatGPTには直接は上記のサイトを参照させず、さらに元ネタの以下サイトの要約するところから始めた
+https://allenpike.com/2023/how-leaders-manage-time-attention-tasks/
+
+ファイル名のデフォルトは変えるようにしましょう。
