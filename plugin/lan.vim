@@ -306,17 +306,12 @@ function! s:lan_note_insert_strict(kind) abort
       call s:die('Today section missing. Run :Lan first.')
     endif
 
-    let l:today_end = s:section_end_buf(l:today_lnum)
     if a:kind ==# 'block'
       let l:hdr = s:HDR_BLOCK
     elseif a:kind ==# 'queue'
       let l:hdr = s:HDR_QUEUE
     else
       let l:hdr = s:HDR_NOTES
-    endif
-    let l:h = s:find_subheader_in_range_buf(l:today_lnum, l:today_end, l:hdr)
-    if l:h == 0
-      call s:die('Missing required header in TODAY: ' . l:hdr)
     endif
 
     if a:kind ==# 'memo'
@@ -331,15 +326,13 @@ function! s:lan_note_insert_strict(kind) abort
     else
       let l:inserted = s:append_lines_under_buf(l:today_lnum, l:hdr, ['- [ ] '])
       " 追加した行（末尾）に移動して行末で挿入へ
-      " 直近の "- [ ]" を下に探す（1回だけ）
-      let l:pos = search('^\s*-\s\[ \]\s*$', 'nW')
-      if l:pos == 0
+      if l:inserted == 0
         " 念のため：末尾に移動して挿入へ
         call cursor(line('$'), 1)
         startinsert!
         return
       endif
-      call cursor(l:pos, 1)
+      call cursor(l:inserted, 1)
       startinsert!
     endif
   catch /^lan_error$/
