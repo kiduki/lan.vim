@@ -117,8 +117,8 @@ function! s:maybe_define_note_syntax() abort
   endif
   let b:lan_paren_syntax_defined = 1
 
-  syntax match lanParenEmphasis /(\zs[^)]\+\ze)/ containedin=ALL
-  highlight default lanParenEmphasis ctermfg=DarkRed guifg=#d75f5f cterm=NONE gui=NONE
+  highlight default lanParenEmphasis ctermfg=216 guifg=#d19a66 cterm=NONE gui=NONE
+  let b:lan_paren_matchid = matchadd('lanParenEmphasis', '(\zs[^)]\+\ze)', 1000)
 endfunction
 
 " ---------------- small error helper ----------------
