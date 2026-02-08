@@ -13,6 +13,7 @@
 "   g:lan_note_map_add_note    default: <Leader>lann   -> TODAY Notes    に "- " を追加して挿入へ
 "   g:lan_note_map_add_auto    default: <Leader>lana   -> カーソル位置のセクションへ追加して挿入へ（INSERT）
 "   g:lan_note_map_toggle      default: <Leader>lanx   -> 親子も含めて完了トグル（階層対応）
+"   g:lan_note_map_progress    default: <Leader>lanp   -> 進行中フラグ🚩をトグル（完了済みは対象外）
 "   g:lan_note_map_toggle_fold default: <Leader>lanz   -> 完了済みタスクを一括で折り畳みON/OFF
 
 if exists('g:loaded_lan_plugin')
@@ -40,6 +41,9 @@ endif
 if !exists('g:lan_note_map_toggle')
   let g:lan_note_map_toggle = '<Leader>lanx'
 endif
+if !exists('g:lan_note_map_progress')
+  let g:lan_note_map_progress = '<Leader>lanp'
+endif
 if !exists('g:lan_note_map_toggle_fold')
   let g:lan_note_map_toggle_fold = '<Leader>lanz'
 endif
@@ -48,6 +52,7 @@ endif
 let s:RX_DATE   = '^## \d\{4}-\d\{2}-\d\{2} (\u\l\l)$'
 let s:RX_DASH   = '^-\{3,}$'
 let s:RX_TASK   = '^\s*-\s\[\( \|x\)\]\s*'
+let s:RX_PROGRESS = '^\s*-\s\[\s\]\s*🚩\s*'
 
 let s:HDR_BLOCK = '### 🔥 Blocking Tasks'
 let s:HDR_QUEUE = '### 📥 Queue'
@@ -90,6 +95,10 @@ function! s:maybe_define_note_maps() abort
   if empty(maparg(g:lan_note_map_toggle, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle .
           \ ' :call <SID>lan_toggle_done()<CR>'
+  endif
+  if empty(maparg(g:lan_note_map_progress, 'n'))
+    execute 'nnoremap <silent><buffer> ' . g:lan_note_map_progress .
+          \ ' :call <SID>lan_toggle_progress()<CR>'
   endif
   if empty(maparg(g:lan_note_map_toggle_fold, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle_fold .
@@ -664,10 +673,26 @@ function! s:task_is_done(lnum) abort
   return getline(a:lnum) =~# '^\s*-\s\[x\]\s*'
 endfunction
 
+function! s:task_has_progress(lnum) abort
+  return getline(a:lnum) =~# s:RX_PROGRESS
+endfunction
+
+function! s:strip_progress_flag(line) abort
+  return substitute(a:line, '^\(\s*-\s\[[x ]\]\s*\)🚩\s*', '\1', '')
+endfunction
+
+function! s:toggle_progress_flag_line(line) abort
+  if a:line =~# s:RX_PROGRESS
+    return s:strip_progress_flag(a:line)
+  endif
+  return substitute(a:line, '^\(\s*-\s\[\s\]\s*\)', '\1🚩 ', '')
+endfunction
+
 function! s:set_task_done(lnum, done) abort
   let l:line = getline(a:lnum)
   if a:done
     let l:new = substitute(l:line, '^\(\s*-\s\)\[\s\]\(\s*\)', '\1[x]\2', '')
+    let l:new = s:strip_progress_flag(l:new)
   else
     let l:new = substitute(l:line, '^\(\s*-\s\)\[x\]\(\s*\)', '\1[ ]\2', '')
   endif
@@ -769,6 +794,21 @@ function! s:lan_toggle_done() abort
   call s:set_task_done(l:target, l:new_done)
   call s:apply_done_to_descendants(l:target, l:new_done)
   call s:propagate_to_ancestors(l:target)
+endfunction
+
+function! s:lan_toggle_progress() abort
+  let l:target = s:find_target_task_lnum_from_cursor()
+  if l:target == 0
+    echoerr '[lan] No task line found above cursor.'
+    return
+  endif
+  if s:task_is_done(l:target)
+    return
+  endif
+
+  let l:line = getline(l:target)
+  let l:new = s:toggle_progress_flag_line(l:line)
+  call setline(l:target, l:new)
 endfunction
 
 " ===============================
