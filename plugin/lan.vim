@@ -372,6 +372,10 @@ endfunction
 
 function! s:lan_note_insert_auto() abort
   try
+    if col('.') != col('$')
+      return
+    endif
+
     let l:date_lnum = s:find_date_header_from_cursor()
     if l:date_lnum == 0
       call s:die('Date section not found above cursor.')
