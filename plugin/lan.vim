@@ -117,7 +117,7 @@ function! s:maybe_define_note_syntax() abort
   endif
   let b:lan_paren_syntax_defined = 1
 
-  syntax match lanParenEmphasis /\%((\)\@<=[^)]\+\%()\)\@=/
+  syntax match lanParenEmphasis /(\zs[^)]\+\ze)/ containedin=ALL
   if hlexists('markdownItalic')
     highlight default link lanParenEmphasis markdownItalic
   elseif hlexists('markdownBold')
