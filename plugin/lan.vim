@@ -372,7 +372,8 @@ endfunction
 
 function! s:lan_note_insert_auto_guard() abort
   if col('.') < (col('$') - 1)
-    call feedkeys(g:lan_note_map_add_auto, 'in')
+    let l:keys = replace_termcodes(g:lan_note_map_add_auto, v:true, v:true, v:true)
+    call feedkeys(l:keys, 'in')
     return
   endif
   call s:lan_note_insert_auto()
