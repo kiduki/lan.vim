@@ -711,21 +711,28 @@ function! s:fold_done_tasks() abort
   let l:last = s:section_end_buf(l:today_lnum)
   while l:lnum <= l:last
     if getline(l:lnum) =~# '^\s*-\s\[x\]\s*'
-      let l:root_indent = indent(l:lnum)
-      let l:end = l:lnum
-      for l:i in range(l:lnum + 1, l:last)
-        if s:is_section_break_lnum(l:i)
-          break
-        endif
-        let l:ind = indent(l:i)
-        if l:ind <= l:root_indent
-          break
-        endif
-        let l:end = l:i
-      endfor
+      let l:group_start = l:lnum
+      let l:group_end = l:lnum
 
-      execute l:lnum . ',' . l:end . 'fold'
-      let l:lnum = l:end + 1
+      while l:lnum <= l:last && getline(l:lnum) =~# '^\s*-\s\[x\]\s*'
+        let l:root_indent = indent(l:lnum)
+        let l:end = l:lnum
+        for l:i in range(l:lnum + 1, l:last)
+          if s:is_section_break_lnum(l:i)
+            break
+          endif
+          let l:ind = indent(l:i)
+          if l:ind <= l:root_indent
+            break
+          endif
+          let l:end = l:i
+        endfor
+
+        let l:group_end = l:end
+        let l:lnum = l:end + 1
+      endwhile
+
+      execute l:group_start . ',' . l:group_end . 'fold'
       continue
     endif
     let l:lnum += 1
