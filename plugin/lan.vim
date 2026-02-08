@@ -80,8 +80,8 @@ function! s:maybe_define_note_maps() abort
           \ ' :call <SID>lan_note_insert_strict("memo")<CR>'
   endif
   if empty(maparg(g:lan_note_map_add_auto, 'i'))
-    execute 'inoremap <silent><buffer> ' . g:lan_note_map_add_auto .
-          \ ' <C-o>:call <SID>lan_note_insert_auto_guard()<CR>'
+    execute 'inoremap <expr><silent><buffer> ' . g:lan_note_map_add_auto .
+          \ ' (col(".") != col("$") ? <SID>lan_note_map_add_auto_keys() : "\<C-o>:call <SID>lan_note_insert_auto()<CR>")'
   endif
   if empty(maparg(g:lan_note_map_toggle, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle .
@@ -370,14 +370,9 @@ function! s:find_section_kind_from_cursor(date_lnum) abort
   return ''
 endfunction
 
-function! s:lan_note_insert_auto_guard() abort
-  if col('.') < (col('$') - 1)
-    let l:key_notation = substitute(escape(g:lan_note_map_add_auto, '\\"'), '<', '\<', 'g')
-    let l:keys = eval('"' . l:key_notation . '"')
-    call feedkeys(l:keys, 'in')
-    return
-  endif
-  call s:lan_note_insert_auto()
+function! s:lan_note_map_add_auto_keys() abort
+  let l:key_notation = substitute(g:lan_note_map_add_auto, '<\([^>]\+\)>', '\= "\\<" . toupper(submatch(1)) . ">"', 'g')
+  return eval('"' . escape(l:key_notation, '"') . '"')
 endfunction
 
 function! s:lan_note_insert_auto() abort
