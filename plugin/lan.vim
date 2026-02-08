@@ -118,13 +118,44 @@ function! s:maybe_define_note_syntax() abort
   let b:lan_paren_syntax_defined = 1
 
   syntax match lanParenEmphasis /\%((\)\@<=[^)]\+\%()\)\@=/
-  if hlexists('markdownItalic')
-    highlight default link lanParenEmphasis markdownItalic
-  elseif hlexists('markdownBold')
-    highlight default link lanParenEmphasis markdownBold
+  if s:highlight_from_group('lanParenEmphasis', 'markdownItalic')
+  elseif s:highlight_from_group('lanParenEmphasis', 'markdownBold')
+  elseif s:highlight_from_group('lanParenEmphasis', 'String')
   else
     highlight default link lanParenEmphasis String
   endif
+endfunction
+
+function! s:highlight_from_group(target, source) abort
+  let l:id = hlID(a:source)
+  if l:id == 0
+    return 0
+  endif
+
+  let l:trans = synIDtrans(l:id)
+  let l:guifg = synIDattr(l:trans, 'fg#')
+  let l:ctermfg = synIDattr(l:trans, 'fg')
+  let l:gui = synIDattr(l:trans, 'gui')
+  let l:cterm = synIDattr(l:trans, 'cterm')
+  if empty(l:guifg) && empty(l:ctermfg)
+    return 0
+  endif
+
+  let l:cmd = 'highlight default ' . a:target
+  if !empty(l:guifg)
+    let l:cmd .= ' guifg=' . l:guifg
+  endif
+  if !empty(l:ctermfg)
+    let l:cmd .= ' ctermfg=' . l:ctermfg
+  endif
+  if !empty(l:gui)
+    let l:cmd .= ' gui=' . l:gui
+  endif
+  if !empty(l:cterm)
+    let l:cmd .= ' cterm=' . l:cterm
+  endif
+  execute l:cmd
+  return 1
 endfunction
 
 " ---------------- small error helper ----------------
