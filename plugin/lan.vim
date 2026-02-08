@@ -372,7 +372,7 @@ endfunction
 
 function! s:lan_note_insert_auto() abort
   try
-    if col('.') != col('$')
+    if col('.') < (col('$') - 1)
       return
     endif
 
