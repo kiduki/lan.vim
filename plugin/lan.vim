@@ -127,16 +127,24 @@ function! s:maybe_define_note_syntax() abort
 endfunction
 
 function! s:highlight_from_group(target, source) abort
+  if !exists('*synIDattr') || !exists('*synIDtrans') || !exists('*hlID')
+    return 0
+  endif
+
   let l:id = hlID(a:source)
   if l:id == 0
     return 0
   endif
 
-  let l:trans = synIDtrans(l:id)
-  let l:guifg = synIDattr(l:trans, 'fg#')
-  let l:ctermfg = synIDattr(l:trans, 'fg')
-  let l:gui = synIDattr(l:trans, 'gui')
-  let l:cterm = synIDattr(l:trans, 'cterm')
+  try
+    let l:trans = synIDtrans(l:id)
+    let l:guifg = synIDattr(l:trans, 'fg#')
+    let l:ctermfg = synIDattr(l:trans, 'fg')
+    let l:gui = synIDattr(l:trans, 'gui')
+    let l:cterm = synIDattr(l:trans, 'cterm')
+  catch
+    return 0
+  endtry
   if empty(l:guifg) && empty(l:ctermfg)
     return 0
   endif
