@@ -16,6 +16,7 @@ let g:lan_note_map_add_block = '<Leader>lanb'
 let g:lan_note_map_add_queue = '<Leader>lanq'
 let g:lan_note_map_add_note  = '<Leader>lann'
 let g:lan_note_map_toggle    = '<Leader>lanx'
+let g:lan_note_map_toggle_fold = '<Leader>lanz'
 ```
 
 ### コマンド
@@ -38,6 +39,8 @@ let g:lan_note_map_toggle    = '<Leader>lanx'
   TODAY の **Notes** に `- ` を追加して挿入。
 - `g:lan_note_map_toggle`（既定: `<Leader>lanx`）  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
+- `g:lan_note_map_toggle_fold`（既定: `<Leader>lanz`）  
+  完了済みタスク（配下の深いインデントを含む）を一括で折り畳みON/OFF。
 
 ----
 
