@@ -11,6 +11,7 @@
 "   g:lan_note_map_add_block   default: <Leader>lanb   -> TODAY Blocking に "- [ ] " を追加して挿入へ
 "   g:lan_note_map_add_queue   default: <Leader>lanq   -> TODAY Queue    に "- [ ] " を追加して挿入へ
 "   g:lan_note_map_add_note    default: <Leader>lann   -> TODAY Notes    に "- " を追加して挿入へ
+"   g:lan_note_map_add_auto    default: <Leader>lana   -> カーソル位置のセクションへ追加して挿入へ（INSERT）
 "   g:lan_note_map_toggle      default: <Leader>lanx   -> 親子も含めて完了トグル（階層対応）
 
 if exists('g:loaded_lan_plugin')
@@ -31,6 +32,9 @@ if !exists('g:lan_note_map_add_queue')
 endif
 if !exists('g:lan_note_map_add_note')
   let g:lan_note_map_add_note = '<Leader>lann'
+endif
+if !exists('g:lan_note_map_add_auto')
+  let g:lan_note_map_add_auto = '<Leader>lana'
 endif
 if !exists('g:lan_note_map_toggle')
   let g:lan_note_map_toggle = '<Leader>lanx'
@@ -74,6 +78,10 @@ function! s:maybe_define_note_maps() abort
   if empty(maparg(g:lan_note_map_add_note, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_add_note .
           \ ' :call <SID>lan_note_insert_strict("memo")<CR>'
+  endif
+  if empty(maparg(g:lan_note_map_add_auto, 'i'))
+    execute 'inoremap <silent><buffer> ' . g:lan_note_map_add_auto .
+          \ ' <C-o>:call <SID>lan_note_insert_auto()<CR>'
   endif
   if empty(maparg(g:lan_note_map_toggle, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle .
@@ -335,6 +343,69 @@ function! s:lan_note_insert_strict(kind) abort
       call cursor(l:inserted, 1)
       startinsert!
     endif
+  catch /^lan_error$/
+  endtry
+endfunction
+
+function! s:find_date_header_from_cursor() abort
+  for l:i in range(line('.'), 1, -1)
+    if getline(l:i) =~# s:RX_DATE
+      return l:i
+    endif
+  endfor
+  return 0
+endfunction
+
+function! s:find_section_kind_from_cursor(date_lnum) abort
+  for l:i in range(line('.'), a:date_lnum + 1, -1)
+    let l:line = getline(l:i)
+    if l:line ==# s:HDR_BLOCK
+      return 'block'
+    elseif l:line ==# s:HDR_QUEUE
+      return 'queue'
+    elseif l:line ==# s:HDR_NOTES
+      return 'memo'
+    endif
+  endfor
+  return ''
+endfunction
+
+function! s:lan_note_insert_auto() abort
+  try
+    let l:date_lnum = s:find_date_header_from_cursor()
+    if l:date_lnum == 0
+      call s:die('Date section not found above cursor.')
+    endif
+
+    let l:sec_end = s:section_end_buf(l:date_lnum)
+    if line('.') < l:date_lnum || line('.') > l:sec_end
+      call s:die('Cursor is outside the date section.')
+    endif
+
+    let l:kind = s:find_section_kind_from_cursor(l:date_lnum)
+    if empty(l:kind)
+      call s:die('Section header not found above cursor.')
+    endif
+
+    if l:kind ==# 'block'
+      let l:hdr = s:HDR_BLOCK
+      let l:lines = ['- [ ] ']
+    elseif l:kind ==# 'queue'
+      let l:hdr = s:HDR_QUEUE
+      let l:lines = ['- [ ] ']
+    else
+      let l:hdr = s:HDR_NOTES
+      let l:lines = ['- ']
+    endif
+
+    let l:inserted = s:append_lines_under_buf(l:date_lnum, l:hdr, l:lines)
+    if l:inserted == 0
+      call cursor(line('$'), 1)
+      startinsert!
+      return
+    endif
+    call cursor(l:inserted, 1)
+    startinsert!
   catch /^lan_error$/
   endtry
 endfunction
