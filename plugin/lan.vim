@@ -118,13 +118,7 @@ function! s:maybe_define_note_syntax() abort
   let b:lan_paren_syntax_defined = 1
 
   syntax match lanParenEmphasis /(\zs[^)]\+\ze)/ containedin=ALL
-  if hlexists('markdownItalic')
-    highlight default link lanParenEmphasis markdownItalic
-  elseif hlexists('markdownBold')
-    highlight default link lanParenEmphasis markdownBold
-  else
-    highlight default link lanParenEmphasis String
-  endif
+  highlight default lanParenEmphasis ctermfg=DarkRed guifg=#d75f5f cterm=NONE gui=NONE
 endfunction
 
 " ---------------- small error helper ----------------
