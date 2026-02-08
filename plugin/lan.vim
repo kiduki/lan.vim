@@ -68,6 +68,7 @@ command! -nargs=+ Lann call s:lan_add_file('memo',  <q-args>)
 augroup lan_note_maps
   autocmd!
   autocmd BufEnter * call s:maybe_define_note_maps()
+  autocmd BufEnter * call s:maybe_define_note_syntax()
 augroup END
 
 function! s:maybe_define_note_maps() abort
@@ -104,6 +105,20 @@ function! s:maybe_define_note_maps() abort
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle_fold .
           \ ' :call <SID>lan_toggle_done_fold()<CR>'
   endif
+endfunction
+
+function! s:maybe_define_note_syntax() abort
+  if expand('%:p') !=# expand(g:lan_file)
+    return
+  endif
+
+  if get(b:, 'lan_paren_syntax_defined', 0)
+    return
+  endif
+  let b:lan_paren_syntax_defined = 1
+
+  highlight default lanParenEmphasis ctermfg=216 guifg=#d19a66 cterm=NONE gui=NONE
+  let b:lan_paren_matchid = matchadd('lanParenEmphasis', '(\zs[^)]\+\ze)', 1000)
 endfunction
 
 " ---------------- small error helper ----------------
