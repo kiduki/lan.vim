@@ -13,6 +13,7 @@
 "   g:lan_note_map_add_note    default: <Leader>lann   -> TODAY Notes    に "- " を追加して挿入へ
 "   g:lan_note_map_add_auto    default: <Leader>lana   -> カーソル位置のセクションへ追加して挿入へ（INSERT）
 "   g:lan_note_map_toggle      default: <Leader>lanx   -> 親子も含めて完了トグル（階層対応）
+"   g:lan_note_map_toggle_fold default: <Leader>lanz   -> 完了済みタスクを一括で折り畳みON/OFF
 
 if exists('g:loaded_lan_plugin')
   finish
@@ -38,6 +39,9 @@ if !exists('g:lan_note_map_add_auto')
 endif
 if !exists('g:lan_note_map_toggle')
   let g:lan_note_map_toggle = '<Leader>lanx'
+endif
+if !exists('g:lan_note_map_toggle_fold')
+  let g:lan_note_map_toggle_fold = '<Leader>lanz'
 endif
 
 " ---------------- constants ----------------
@@ -86,6 +90,10 @@ function! s:maybe_define_note_maps() abort
   if empty(maparg(g:lan_note_map_toggle, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle .
           \ ' :call <SID>lan_toggle_done()<CR>'
+  endif
+  if empty(maparg(g:lan_note_map_toggle_fold, 'n'))
+    execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle_fold .
+          \ ' :call <SID>lan_toggle_done_fold()<CR>'
   endif
 endfunction
 
@@ -756,4 +764,82 @@ function! s:lan_toggle_done() abort
   call s:set_task_done(l:target, l:new_done)
   call s:apply_done_to_descendants(l:target, l:new_done)
   call s:propagate_to_ancestors(l:target)
+endfunction
+
+" ===============================
+"  Fold done tasks (note buffer)
+" ===============================
+function! s:clear_manual_folds() abort
+  silent! normal! zE
+endfunction
+
+function! s:fold_done_tasks() abort
+  let l:today_lnum = s:find_line_exact_buf(s:today_header())
+  if l:today_lnum == 0
+    return
+  endif
+  let l:lnum = l:today_lnum + 1
+  let l:last = s:section_end_buf(l:today_lnum)
+  while l:lnum <= l:last
+    if getline(l:lnum) =~# '^\s*-\s\[x\]\s*'
+      let l:group_start = l:lnum
+      let l:group_end = l:lnum
+
+      while l:lnum <= l:last && getline(l:lnum) =~# '^\s*-\s\[x\]\s*'
+        let l:root_indent = indent(l:lnum)
+        let l:end = l:lnum
+        for l:i in range(l:lnum + 1, l:last)
+          if s:is_section_break_lnum(l:i)
+            break
+          endif
+          let l:ind = indent(l:i)
+          if l:ind <= l:root_indent
+            break
+          endif
+          let l:end = l:i
+        endfor
+
+        let l:group_end = l:end
+        let l:lnum = l:end + 1
+      endwhile
+
+      execute l:group_start . ',' . l:group_end . 'fold'
+      continue
+    endif
+    let l:lnum += 1
+  endwhile
+endfunction
+
+function! s:enable_done_folds() abort
+  if !exists('b:lan_prev_foldmethod')
+    let b:lan_prev_foldmethod = &l:foldmethod
+  endif
+  if !exists('b:lan_prev_foldenable')
+    let b:lan_prev_foldenable = &l:foldenable
+  endif
+
+  setlocal foldmethod=manual
+  setlocal foldenable
+  call s:clear_manual_folds()
+  call s:fold_done_tasks()
+  let b:lan_done_fold_enabled = 1
+endfunction
+
+function! s:disable_done_folds() abort
+  call s:clear_manual_folds()
+  if exists('b:lan_prev_foldmethod')
+    let &l:foldmethod = b:lan_prev_foldmethod
+  endif
+  if exists('b:lan_prev_foldenable')
+    let &l:foldenable = b:lan_prev_foldenable
+  endif
+  let b:lan_done_fold_enabled = 0
+endfunction
+
+function! s:lan_toggle_done_fold() abort
+  if get(b:, 'lan_done_fold_enabled', 0)
+    call s:disable_done_folds()
+  else
+    call s:enable_done_folds()
+  endif
 endfunction
