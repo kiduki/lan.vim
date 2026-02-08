@@ -15,6 +15,7 @@ let g:lan_file = expand('~/long-ass-note.md')
 let g:lan_note_map_add_block = '<Leader>lanb'
 let g:lan_note_map_add_queue = '<Leader>lanq'
 let g:lan_note_map_add_note  = '<Leader>lann'
+let g:lan_note_map_add_auto  = '<Leader>lana'
 let g:lan_note_map_toggle    = '<Leader>lanx'
 ```
 
@@ -36,6 +37,8 @@ let g:lan_note_map_toggle    = '<Leader>lanx'
   TODAY の **Queue** に `- [ ] ` を追加して挿入。
 - `g:lan_note_map_add_note`（既定: `<Leader>lann`）  
   TODAY の **Notes** に `- ` を追加して挿入。
+- `g:lan_note_map_add_auto`（既定: `<Leader>lana`）  
+  カーソルがあるセクション（Blocking / Queue / Notes）に応じて追加して挿入。
 - `g:lan_note_map_toggle`（既定: `<Leader>lanx`）  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
 
