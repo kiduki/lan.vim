@@ -68,6 +68,7 @@ command! -nargs=+ Lann call s:lan_add_file('memo',  <q-args>)
 augroup lan_note_maps
   autocmd!
   autocmd BufEnter * call s:maybe_define_note_maps()
+  autocmd BufEnter * call s:maybe_define_note_syntax()
 augroup END
 
 function! s:maybe_define_note_maps() abort
@@ -104,6 +105,65 @@ function! s:maybe_define_note_maps() abort
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle_fold .
           \ ' :call <SID>lan_toggle_done_fold()<CR>'
   endif
+endfunction
+
+function! s:maybe_define_note_syntax() abort
+  if expand('%:p') !=# expand(g:lan_file)
+    return
+  endif
+
+  if get(b:, 'lan_paren_syntax_defined', 0)
+    return
+  endif
+  let b:lan_paren_syntax_defined = 1
+
+  syntax match lanParenEmphasis /\%((\)\@<=[^)]\+\%()\)\@=/
+  if s:highlight_from_group('lanParenEmphasis', 'markdownItalic')
+  elseif s:highlight_from_group('lanParenEmphasis', 'markdownBold')
+  elseif s:highlight_from_group('lanParenEmphasis', 'String')
+  else
+    highlight default link lanParenEmphasis String
+  endif
+endfunction
+
+function! s:highlight_from_group(target, source) abort
+  if !exists('*synIDattr') || !exists('*synIDtrans') || !exists('*hlID')
+    return 0
+  endif
+
+  let l:id = hlID(a:source)
+  if l:id == 0
+    return 0
+  endif
+
+  try
+    let l:trans = synIDtrans(l:id)
+    let l:guifg = synIDattr(l:trans, 'fg#')
+    let l:ctermfg = synIDattr(l:trans, 'fg')
+    let l:gui = synIDattr(l:trans, 'gui')
+    let l:cterm = synIDattr(l:trans, 'cterm')
+  catch
+    return 0
+  endtry
+  if empty(l:guifg) && empty(l:ctermfg)
+    return 0
+  endif
+
+  let l:cmd = 'highlight default ' . a:target
+  if !empty(l:guifg)
+    let l:cmd .= ' guifg=' . l:guifg
+  endif
+  if !empty(l:ctermfg)
+    let l:cmd .= ' ctermfg=' . l:ctermfg
+  endif
+  if !empty(l:gui)
+    let l:cmd .= ' gui=' . l:gui
+  endif
+  if !empty(l:cterm)
+    let l:cmd .= ' cterm=' . l:cterm
+  endif
+  execute l:cmd
+  return 1
 endfunction
 
 " ---------------- small error helper ----------------
