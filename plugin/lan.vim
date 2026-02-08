@@ -81,7 +81,7 @@ function! s:maybe_define_note_maps() abort
   endif
   if empty(maparg(g:lan_note_map_add_auto, 'i'))
     execute 'inoremap <silent><buffer> ' . g:lan_note_map_add_auto .
-          \ ' <C-o>:call <SID>lan_note_insert_auto()<CR>'
+          \ ' <C-o>:call <SID>lan_note_insert_auto_guard()<CR>'
   endif
   if empty(maparg(g:lan_note_map_toggle, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle .
@@ -370,12 +370,16 @@ function! s:find_section_kind_from_cursor(date_lnum) abort
   return ''
 endfunction
 
+function! s:lan_note_insert_auto_guard() abort
+  if col('.') < (col('$') - 1)
+    call feedkeys(g:lan_note_map_add_auto, 'in')
+    return
+  endif
+  call s:lan_note_insert_auto()
+endfunction
+
 function! s:lan_note_insert_auto() abort
   try
-    if col('.') < (col('$') - 1)
-      return
-    endif
-
     let l:date_lnum = s:find_date_header_from_cursor()
     if l:date_lnum == 0
       call s:die('Date section not found above cursor.')
