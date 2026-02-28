@@ -12,20 +12,23 @@
 
 ## 使い方（vimrc の記載）
 ```vim
-" 推奨: setup() でまとめて設定
-call lan#setup({
-      \ 'file': expand('~/notes/lan.md'),
-      \ 'note_maps': {
-      \   'add_block': '<Leader>lnb',
-      \   'add_queue': '<Leader>lnq',
-      \   'add_note': '<Leader>lnn',
-      \   'add_auto': '<Leader>lna',
-      \   'toggle': '<Leader>lnx',
-      \   'progress': '<Leader>lnp',
-      \   'waiting': '<Leader>lnw',
-      \   'toggle_fold': '<Leader>lnz',
-      \ },
-      \})
+" 推奨: plugin読込後に setup() を実行
+augroup lan_user_setup
+  autocmd!
+  autocmd VimEnter * call lan#setup({
+        \ 'file': expand('~/notes/lan.md'),
+        \ 'note_maps': {
+        \   'add_block': '<Leader>lnb',
+        \   'add_queue': '<Leader>lnq',
+        \   'add_note': '<Leader>lnn',
+        \   'add_auto': '<Leader>lna',
+        \   'toggle': '<Leader>lnx',
+        \   'progress': '<Leader>lnp',
+        \   'waiting': '<Leader>lnw',
+        \   'toggle_fold': '<Leader>lnz',
+        \ },
+        \ })
+augroup END
 ```
 
 `setup()` 以外の設定方法はサポート対象外です。
