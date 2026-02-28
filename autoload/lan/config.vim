@@ -8,10 +8,10 @@ let s:config = {
       \   'add_queue': '<Leader>lanq',
       \   'add_note': '<Leader>lann',
       \   'add_auto': '<Leader>lana',
-      \   'toggle-done': '<Leader>lanx',
-      \   'toggle-progress': '<Leader>lanp',
-      \   'toggle-waiting': '<Leader>lanw',
-      \   'toggle-fold': '<Leader>lanz'
+      \   'toggle_done': '<Leader>lanx',
+      \   'toggle_progress': '<Leader>lanp',
+      \   'toggle_waiting': '<Leader>lanw',
+      \   'toggle_fold': '<Leader>lanz'
       \ }
       \ }
 
@@ -23,10 +23,10 @@ function! lan#config#init_defaults() abort
         \   'add_queue': '<Leader>lanq',
         \   'add_note': '<Leader>lann',
         \   'add_auto': '<Leader>lana',
-        \   'toggle-done': '<Leader>lanx',
-        \   'toggle-progress': '<Leader>lanp',
-        \   'toggle-waiting': '<Leader>lanw',
-        \   'toggle-fold': '<Leader>lanz'
+        \   'toggle_done': '<Leader>lanx',
+        \   'toggle_progress': '<Leader>lanp',
+        \   'toggle_waiting': '<Leader>lanw',
+        \   'toggle_fold': '<Leader>lanz'
         \ }
         \ }
 endfunction
@@ -46,9 +46,9 @@ function! lan#config#setup(opts) abort
       echoerr '[lan] note_maps must be a Dictionary.'
       return
     endif
-    for l:key in keys(s:config.note_maps)
-      if has_key(a:opts.note_maps, l:key)
-        let s:config.note_maps[l:key] = a:opts.note_maps[l:key]
+    for [l:key, l:lhs] in items(a:opts.note_maps)
+      if has_key(s:config.note_maps, l:key)
+        let s:config.note_maps[l:key] = l:lhs
       endif
     endfor
   endif
