@@ -91,7 +91,7 @@ function! s:maybe_define_note_maps() abort
   endif
   if empty(maparg(g:lan_note_map_add_auto, 'i'))
     execute 'inoremap <expr><silent><buffer> ' . g:lan_note_map_add_auto .
-          \ ' ((col(".") != col("$") || !<SID>lan_note_can_insert_auto()) ? <SID>lan_note_map_add_auto_keys() : "\<C-o>:call <SID>lan_note_insert_auto()<CR>")'
+          \ ' ((col(".") != col("$") \|\| !<SID>lan_note_can_insert_auto()) ? <SID>lan_note_map_add_auto_keys() : "\<C-o>:call <SID>lan_note_insert_auto()<CR>")'
   endif
   if empty(maparg(g:lan_note_map_toggle, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle .
