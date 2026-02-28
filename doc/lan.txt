@@ -1,0 +1,58 @@
+*Lan* *lan.vim*
+
+lan.vim                                                Last change: 2026-02-28
+
+===============================================================================
+CONTENTS                                                    *lan-contents*
+
+1. Overview..........................................................|lan-overview|
+2. Commands..........................................................|lan-commands|
+3. Setup.............................................................|lan-setup|
+
+===============================================================================
+1. Overview                                                       *lan-overview*
+
+lan.vim is a daily-note helper plugin for Vim.
+Use |:Lan| to open/create today's section, carry unfinished tasks,
+and add quick entries.
+
+===============================================================================
+2. Commands                                                       *lan-commands*
+
+:Lan
+    Open/create today's section.
+
+:Lanb {text}
+    Add to "Blocking Tasks" as "- [ ] {text}".
+
+:Lanq {text}
+    Add to "Queue" as "- [ ] {text}".
+
+:Lann {text}
+    Add to "Notes" as "- {text}".
+
+:LanToggleDone
+:LanToggleProgress
+:LanToggleWaiting
+    Task state toggles for current note buffer.
+
+===============================================================================
+3. Setup                                                             *lan-setup*
+
+Example: >
+  call lan#setup({
+        \ 'file': expand('~/notes/lan.md'),
+        \ 'note_maps': {
+        \   'add_block': '<Leader>lnb',
+        \   'add_queue': '<Leader>lnq',
+        \   'add_note': '<Leader>lnn',
+        \   'add_auto': '<Leader>lna',
+        \   'toggle_done': '<Leader>lnx',
+        \   'toggle_progress': '<Leader>lnp',
+        \   'toggle_waiting': '<Leader>lnw',
+        \   'toggle_fold': '<Leader>lnz',
+        \ },
+        \ })
+<
+
+vim:tw=78:ts=8:noet:ft=help:norl:

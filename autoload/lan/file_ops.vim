@@ -183,6 +183,10 @@ function! lan#file_ops#add(kind, text) abort
   let l:path = lan#core#note_file_path()
 
   try
+    let l:dir = fnamemodify(l:path, ":h")
+    if !isdirectory(l:dir)
+      call mkdir(l:dir, "p")
+    endif
     if !filereadable(l:path)
       call writefile([], l:path)
     endif

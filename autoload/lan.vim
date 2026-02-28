@@ -9,6 +9,7 @@ endfunction
 
 function! lan#setup(opts) abort
   call lan#config#setup(a:opts)
+  call lan#core#ensure_help_tags()
 endfunction
 
 function! lan#add_file(kind, text) abort

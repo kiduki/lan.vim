@@ -4,7 +4,7 @@
 ## 機能
 - `:Lan` で今日のセクションを作成・オープン（未完了タスクを前日から引き継ぎ）。  
 - `:Lanb` / `:Lanq` / `:Lann` でノートを開かずに Blocking / Queue / Notes へ追記。  
-- `:LanHelp` でコマンド・キーマップ一覧を `:messages` に表示。  
+- `:h Lan` でヘルプを表示。
 - `:LanToggleDone` / `:LanToggleProgress` / `:LanToggleWaiting` でユーザーコマンドからも状態トグル可能。  
 - 完了タスク折りたたみ時に件数を表示。  
 - 追加系マップ実行時はプレフィックス直後（行末）からすぐ入力できる。  
@@ -22,16 +22,17 @@ augroup lan_user_setup
         \   'add_queue': '<Leader>lnq',
         \   'add_note': '<Leader>lnn',
         \   'add_auto': '<Leader>lna',
-        \   'toggle-done': '<Leader>lnx',
-        \   'toggle-progress': '<Leader>lnp',
-        \   'toggle-waiting': '<Leader>lnw',
-        \   'toggle-fold': '<Leader>lnz',
+        \   'toggle_done': '<Leader>lnx',
+        \   'toggle_progress': '<Leader>lnp',
+        \   'toggle_waiting': '<Leader>lnw',
+        \   'toggle_fold': '<Leader>lnz',
         \ },
         \ })
 augroup END
 ```
 
 `setup()` 以外の設定方法はサポート対象外です。
+`setup()` 実行時にヘルプタグを生成するため `:help Lan` を利用できます。
 
 ### コマンド
 - `:Lan`  
@@ -42,8 +43,8 @@ augroup END
   ノートを開かずに、今日の **Queue** 末尾へ `- [ ] {text}` を追記。
 - `:Lann {text}`  
   ノートを開かずに、今日の **Notes** 末尾へ `- {text}` を追記。
-- `:LanHelp`  
-  利用可能なコマンドと現在のマッピング設定を `:messages` に表示。
+- `:h Lan`
+  Vimヘルプを表示。
 - `:LanToggleDone`  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
 - `:LanToggleProgress`  
@@ -62,13 +63,13 @@ augroup END
   TODAY の **Notes** に `- ` を追加して挿入。
 - `add_auto`（既定: `<Leader>lana`）  
   行末（末尾文字上を含む）にいるときのみ、カーソルがあるセクション（Blocking / Queue / Notes）に応じて追加して挿入（行中の場合は通常の入力として扱う）。
-- `toggle-done`（既定: `<Leader>lanx`）  
+- `toggle_done`（既定: `<Leader>lanx`）  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
-- `toggle-progress`（既定: `<Leader>lanp`）  
+- `toggle_progress`（既定: `<Leader>lanp`）  
   カーソル位置のタスクの進行中フラグ `🚩` をON/OFF（完了済みは対象外）。
-- `toggle-waiting`（既定: `<Leader>lanw`）  
+- `toggle_waiting`（既定: `<Leader>lanw`）  
   カーソル位置のタスクの待機中フラグ `⌛` をON/OFF（完了済みは対象外）。
-- `toggle-fold`（既定: `<Leader>lanz`）  
+- `toggle_fold`（既定: `<Leader>lanz`）  
   完了済みタスク（配下の深いインデントを含む）を一括で折り畳みON/OFF。ON時は折りたたみ件数を表示。
 
 ----
