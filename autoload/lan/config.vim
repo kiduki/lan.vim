@@ -2,7 +2,7 @@
 " Script-local runtime config store.
 
 let s:config = {
-      \ 'file': expand('~/long-ass-note.md'),
+      \ 'file': expand('~/notes/lan.md'),
       \ 'note_maps': {
       \   'add_block': '<Leader>lanb',
       \   'add_queue': '<Leader>lanq',
@@ -17,7 +17,7 @@ let s:config = {
 
 function! lan#config#init_defaults() abort
   let s:config = {
-        \ 'file': expand('~/long-ass-note.md'),
+        \ 'file': expand('~/notes/lan.md'),
         \ 'note_maps': {
         \   'add_block': '<Leader>lanb',
         \   'add_queue': '<Leader>lanq',
