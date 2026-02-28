@@ -49,7 +49,7 @@ if !exists('g:lan_note_map_toggle_fold')
 endif
 
 " ---------------- constants ----------------
-let s:RX_DATE   = '^## \d\{4}-\d\{2}-\d\{2} (\u\l\l)$'
+let s:RX_DATE   = '^## \d\{4}-\d\{2}-\d\{2} ([^)]\+)$'
 let s:RX_DASH   = '^-\{3,}$'
 let s:RX_TASK   = '^\s*-\s\[\( \|x\)\]\s*'
 let s:RX_PROGRESS = '^\s*-\s\[\s\]\s*🚩\s*'
@@ -72,7 +72,7 @@ augroup lan_note_maps
 augroup END
 
 function! s:maybe_define_note_maps() abort
-  if expand('%:p') !=# expand(g:lan_file)
+  if expand('%:p') !=# s:note_file_path()
     return
   endif
 
@@ -91,7 +91,7 @@ function! s:maybe_define_note_maps() abort
   endif
   if empty(maparg(g:lan_note_map_add_auto, 'i'))
     execute 'inoremap <expr><silent><buffer> ' . g:lan_note_map_add_auto .
-          \ ' (col(".") != col("$") ? <SID>lan_note_map_add_auto_keys() : "\<C-o>:call <SID>lan_note_insert_auto()<CR>")'
+          \ ' ((col(".") != col("$") || !<SID>lan_note_can_insert_auto()) ? <SID>lan_note_map_add_auto_keys() : "\<C-o>:call <SID>lan_note_insert_auto()<CR>")'
   endif
   if empty(maparg(g:lan_note_map_toggle, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle .
@@ -108,7 +108,7 @@ function! s:maybe_define_note_maps() abort
 endfunction
 
 function! s:maybe_define_note_syntax() abort
-  if expand('%:p') !=# expand(g:lan_file)
+  if expand('%:p') !=# s:note_file_path()
     return
   endif
 
@@ -130,6 +130,10 @@ endfunction
 " ---------------- shared helpers ----------------
 function! s:today_header() abort
   return '## ' . strftime('%Y-%m-%d') . ' (' . strftime('%a') . ')'
+endfunction
+
+function! s:note_file_path() abort
+  return fnamemodify(expand(g:lan_file), ':p')
 endfunction
 
 function! s:today_template_lines() abort
@@ -160,7 +164,7 @@ endfunction
 " ===============================
 
 function! s:open_note_buf() abort
-  execute 'silent keepalt edit' fnameescape(g:lan_file)
+  execute 'silent keepalt edit' fnameescape(s:note_file_path())
 endfunction
 
 function! s:find_line_exact_buf(text) abort
@@ -407,6 +411,17 @@ function! s:lan_note_map_add_auto_keys() abort
   return eval('"' . escape(l:key_notation, '"') . '"')
 endfunction
 
+function! s:lan_note_can_insert_auto() abort
+  let l:col = col('.')
+  if l:col <= 1
+    return 0
+  endif
+
+  let l:line = getline('.')
+  let l:prev_char = strpart(l:line, l:col - 2, 1)
+  return l:prev_char !~# '[ \t]'
+endfunction
+
 function! s:lan_note_insert_auto() abort
   try
     let l:date_lnum = s:find_date_header_from_cursor()
@@ -625,7 +640,7 @@ endfunction
 
 " Lanb/Lanq/Lann
 function! s:lan_add_file(kind, text) abort
-  let l:path = expand(g:lan_file)
+  let l:path = s:note_file_path()
 
   try
     if !filereadable(l:path)
