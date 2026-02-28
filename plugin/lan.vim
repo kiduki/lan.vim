@@ -91,7 +91,7 @@ function! s:maybe_define_note_maps() abort
   endif
   if empty(maparg(g:lan_note_map_add_auto, 'i'))
     execute 'inoremap <expr><silent><buffer> ' . g:lan_note_map_add_auto .
-          \ ' (col(".") != col("$") ? <SID>lan_note_map_add_auto_keys() : "\<C-o>:call <SID>lan_note_insert_auto()<CR>")'
+          \ ' ((col(".") != col("$") || !<SID>lan_note_can_insert_auto()) ? <SID>lan_note_map_add_auto_keys() : "\<C-o>:call <SID>lan_note_insert_auto()<CR>")'
   endif
   if empty(maparg(g:lan_note_map_toggle, 'n'))
     execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle .
@@ -405,6 +405,17 @@ endfunction
 function! s:lan_note_map_add_auto_keys() abort
   let l:key_notation = substitute(g:lan_note_map_add_auto, '<\([^>]\+\)>', '\= "\\<" . toupper(submatch(1)) . ">"', 'g')
   return eval('"' . escape(l:key_notation, '"') . '"')
+endfunction
+
+function! s:lan_note_can_insert_auto() abort
+  let l:col = col('.')
+  if l:col <= 1
+    return 0
+  endif
+
+  let l:line = getline('.')
+  let l:prev_char = strpart(l:line, l:col - 2, 1)
+  return l:prev_char !~# '[ \t]'
 endfunction
 
 function! s:lan_note_insert_auto() abort
