@@ -59,19 +59,19 @@ function! s:maybe_define_note_maps() abort
         \ 'lan#ui#eval_add_auto_map()',
         \ 'add-auto')
   call s:maybe_define_note_map(
-        \ lan#config#map('toggle'), 'n',
+        \ lan#config#map('toggle-done'), 'n',
         \ ':call lan#task_toggle#done()<CR>',
         \ 'toggle-done')
   call s:maybe_define_note_map(
-        \ lan#config#map('progress'), 'n',
+        \ lan#config#map('toggle-progress'), 'n',
         \ ':call lan#task_toggle#progress()<CR>',
         \ 'toggle-progress')
   call s:maybe_define_note_map(
-        \ lan#config#map('waiting'), 'n',
+        \ lan#config#map('toggle-waiting'), 'n',
         \ ':call lan#task_toggle#waiting()<CR>',
         \ 'toggle-waiting')
   call s:maybe_define_note_map(
-        \ lan#config#map('toggle_fold'), 'n',
+        \ lan#config#map('toggle-fold'), 'n',
         \ ':call lan#fold#toggle_done_fold()<CR>',
         \ 'toggle-fold')
 endfunction

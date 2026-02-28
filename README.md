@@ -22,10 +22,10 @@ augroup lan_user_setup
         \   'add_queue': '<Leader>lnq',
         \   'add_note': '<Leader>lnn',
         \   'add_auto': '<Leader>lna',
-        \   'toggle': '<Leader>lnx',
-        \   'progress': '<Leader>lnp',
-        \   'waiting': '<Leader>lnw',
-        \   'toggle_fold': '<Leader>lnz',
+        \   'toggle-done': '<Leader>lnx',
+        \   'toggle-progress': '<Leader>lnp',
+        \   'toggle-waiting': '<Leader>lnw',
+        \   'toggle-fold': '<Leader>lnz',
         \ },
         \ })
 augroup END
@@ -62,13 +62,13 @@ augroup END
   TODAY の **Notes** に `- ` を追加して挿入。
 - `add_auto`（既定: `<Leader>lana`）  
   行末（末尾文字上を含む）にいるときのみ、カーソルがあるセクション（Blocking / Queue / Notes）に応じて追加して挿入（行中の場合は通常の入力として扱う）。
-- `toggle`（既定: `<Leader>lanx`）  
+- `toggle-done`（既定: `<Leader>lanx`）  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
-- `progress`（既定: `<Leader>lanp`）  
+- `toggle-progress`（既定: `<Leader>lanp`）  
   カーソル位置のタスクの進行中フラグ `🚩` をON/OFF（完了済みは対象外）。
-- `waiting`（既定: `<Leader>lanw`）  
+- `toggle-waiting`（既定: `<Leader>lanw`）  
   カーソル位置のタスクの待機中フラグ `⌛` をON/OFF（完了済みは対象外）。
-- `toggle_fold`（既定: `<Leader>lanz`）  
+- `toggle-fold`（既定: `<Leader>lanz`）  
   完了済みタスク（配下の深いインデントを含む）を一括で折り畳みON/OFF。ON時は折りたたみ件数を表示。
 
 ----

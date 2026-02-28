@@ -8,10 +8,10 @@ let s:config = {
       \   'add_queue': '<Leader>lanq',
       \   'add_note': '<Leader>lann',
       \   'add_auto': '<Leader>lana',
-      \   'toggle': '<Leader>lanx',
-      \   'progress': '<Leader>lanp',
-      \   'waiting': '<Leader>lanw',
-      \   'toggle_fold': '<Leader>lanz'
+      \   'toggle-done': '<Leader>lanx',
+      \   'toggle-progress': '<Leader>lanp',
+      \   'toggle-waiting': '<Leader>lanw',
+      \   'toggle-fold': '<Leader>lanz'
       \ }
       \ }
 
@@ -23,10 +23,10 @@ function! lan#config#init_defaults() abort
         \   'add_queue': '<Leader>lanq',
         \   'add_note': '<Leader>lann',
         \   'add_auto': '<Leader>lana',
-        \   'toggle': '<Leader>lanx',
-        \   'progress': '<Leader>lanp',
-        \   'waiting': '<Leader>lanw',
-        \   'toggle_fold': '<Leader>lanz'
+        \   'toggle-done': '<Leader>lanx',
+        \   'toggle-progress': '<Leader>lanp',
+        \   'toggle-waiting': '<Leader>lanw',
+        \   'toggle-fold': '<Leader>lanz'
         \ }
         \ }
 endfunction

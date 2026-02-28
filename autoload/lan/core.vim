@@ -137,10 +137,10 @@ function! lan#core#help() abort
         \ '          \   ''add_queue'': ' . string(lan#config#map('add_queue')) . ',',
         \ '          \   ''add_note'': ' . string(lan#config#map('add_note')) . ',',
         \ '          \   ''add_auto'': ' . string(lan#config#map('add_auto')) . ',',
-        \ '          \   ''toggle'': ' . string(lan#config#map('toggle')) . ',',
-        \ '          \   ''progress'': ' . string(lan#config#map('progress')) . ',',
-        \ '          \   ''waiting'': ' . string(lan#config#map('waiting')) . ',',
-        \ '          \   ''toggle_fold'': ' . string(lan#config#map('toggle_fold')),
+        \ '          \   ''toggle-done'': ' . string(lan#config#map('toggle-done')) . ',',
+        \ '          \   ''toggle-progress'': ' . string(lan#config#map('toggle-progress')) . ',',
+        \ '          \   ''toggle-waiting'': ' . string(lan#config#map('toggle-waiting')) . ',',
+        \ '          \   ''toggle-fold'': ' . string(lan#config#map('toggle-fold')),
         \ '          \ },',
         \ '          \ })',
         \ '  augroup END',
@@ -149,10 +149,10 @@ function! lan#core#help() abort
         \ '  add-queue=' . lan#config#map('add_queue'),
         \ '  add-note=' . lan#config#map('add_note'),
         \ '  add-auto=' . lan#config#map('add_auto'),
-        \ '  toggle-done=' . lan#config#map('toggle'),
-        \ '  toggle-progress=' . lan#config#map('progress'),
-        \ '  toggle-waiting=' . lan#config#map('waiting'),
-        \ '  toggle-fold=' . lan#config#map('toggle_fold')
+        \ '  toggle-done=' . lan#config#map('toggle-done'),
+        \ '  toggle-progress=' . lan#config#map('toggle-progress'),
+        \ '  toggle-waiting=' . lan#config#map('toggle-waiting'),
+        \ '  toggle-fold=' . lan#config#map('toggle-fold')
         \ ]
   for l:line in l:lines
     echom l:line
