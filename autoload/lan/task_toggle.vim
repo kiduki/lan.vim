@@ -157,6 +157,7 @@ function! lan#task_toggle#progress() abort
     return
   endif
   if s:task_is_done(l:target)
+    echo '[lan] Completed task cannot be flagged as progress.'
     return
   endif
 
@@ -177,6 +178,7 @@ function! lan#task_toggle#waiting() abort
     return
   endif
   if s:task_is_done(l:target)
+    echo '[lan] Completed task cannot be flagged as waiting.'
     return
   endif
 

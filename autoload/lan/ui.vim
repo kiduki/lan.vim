@@ -9,43 +9,71 @@ function! lan#ui#maybe_define_note_syntax() abort
   call s:maybe_define_note_syntax()
 endfunction
 
+function! s:warn_map_conflict_once(lhs, mode, feature) abort
+  let l:feature_key = substitute(a:feature, '[^0-9A-Za-z_]', '_', 'g')
+  let l:key = 'lan_warned_map_conflict_' . a:mode . '_' . l:feature_key
+  if get(b:, l:key, 0)
+    return
+  endif
+  execute 'let b:' . l:key . ' = 1'
+  echohl WarningMsg
+  echom '[lan] Global map conflict: "' . a:lhs . '" for ' . a:feature . ' is disabled in note buffer.'
+  echohl None
+endfunction
+
+function! s:maybe_define_note_map(lhs, mode, rhs, feature) abort
+  let l:map = maparg(a:lhs, a:mode, 0, 1)
+  if empty(l:map)
+    if a:mode ==# 'i'
+      execute 'inoremap <expr><silent><buffer> ' . a:lhs . ' ' . a:rhs
+    else
+      execute 'nnoremap <silent><buffer> ' . a:lhs . ' ' . a:rhs
+    endif
+    return
+  endif
+
+  if !get(l:map, 'buffer', 0)
+    call s:warn_map_conflict_once(a:lhs, a:mode, a:feature)
+  endif
+endfunction
+
 function! s:maybe_define_note_maps() abort
   if expand('%:p') !=# lan#core#note_file_path()
     return
   endif
 
-  if empty(maparg(g:lan_note_map_add_block, 'n'))
-    execute 'nnoremap <silent><buffer> ' . g:lan_note_map_add_block .
-          \ ' :call lan#note_buffer#insert_strict("block")<CR>'
-  endif
-  if empty(maparg(g:lan_note_map_add_queue, 'n'))
-    execute 'nnoremap <silent><buffer> ' . g:lan_note_map_add_queue .
-          \ ' :call lan#note_buffer#insert_strict("queue")<CR>'
-  endif
-  if empty(maparg(g:lan_note_map_add_note, 'n'))
-    execute 'nnoremap <silent><buffer> ' . g:lan_note_map_add_note .
-          \ ' :call lan#note_buffer#insert_strict("memo")<CR>'
-  endif
-  if empty(maparg(g:lan_note_map_add_auto, 'i'))
-    execute 'inoremap <expr><silent><buffer> ' . g:lan_note_map_add_auto .
-          \ ' lan#ui#eval_add_auto_map()'
-  endif
-  if empty(maparg(g:lan_note_map_toggle, 'n'))
-    execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle .
-          \ ' :call lan#task_toggle#done()<CR>'
-  endif
-  if empty(maparg(g:lan_note_map_progress, 'n'))
-    execute 'nnoremap <silent><buffer> ' . g:lan_note_map_progress .
-          \ ' :call lan#task_toggle#progress()<CR>'
-  endif
-  if empty(maparg(g:lan_note_map_waiting, 'n'))
-    execute 'nnoremap <silent><buffer> ' . g:lan_note_map_waiting .
-          \ ' :call lan#task_toggle#waiting()<CR>'
-  endif
-  if empty(maparg(g:lan_note_map_toggle_fold, 'n'))
-    execute 'nnoremap <silent><buffer> ' . g:lan_note_map_toggle_fold .
-          \ ' :call lan#fold#toggle_done_fold()<CR>'
-  endif
+  call s:maybe_define_note_map(
+        \ g:lan_note_map_add_block, 'n',
+        \ ':call lan#note_buffer#insert_strict("block")<CR>',
+        \ 'add-block')
+  call s:maybe_define_note_map(
+        \ g:lan_note_map_add_queue, 'n',
+        \ ':call lan#note_buffer#insert_strict("queue")<CR>',
+        \ 'add-queue')
+  call s:maybe_define_note_map(
+        \ g:lan_note_map_add_note, 'n',
+        \ ':call lan#note_buffer#insert_strict("memo")<CR>',
+        \ 'add-note')
+  call s:maybe_define_note_map(
+        \ g:lan_note_map_add_auto, 'i',
+        \ 'lan#ui#eval_add_auto_map()',
+        \ 'add-auto')
+  call s:maybe_define_note_map(
+        \ g:lan_note_map_toggle, 'n',
+        \ ':call lan#task_toggle#done()<CR>',
+        \ 'toggle-done')
+  call s:maybe_define_note_map(
+        \ g:lan_note_map_progress, 'n',
+        \ ':call lan#task_toggle#progress()<CR>',
+        \ 'toggle-progress')
+  call s:maybe_define_note_map(
+        \ g:lan_note_map_waiting, 'n',
+        \ ':call lan#task_toggle#waiting()<CR>',
+        \ 'toggle-waiting')
+  call s:maybe_define_note_map(
+        \ g:lan_note_map_toggle_fold, 'n',
+        \ ':call lan#fold#toggle_done_fold()<CR>',
+        \ 'toggle-fold')
 endfunction
 
 function! lan#ui#eval_add_auto_map() abort

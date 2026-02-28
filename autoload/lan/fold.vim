@@ -79,6 +79,9 @@ function! s:disable_done_folds() abort
 endfunction
 
 function! lan#fold#toggle_done_fold() abort
+  if !lan#core#require_note_buffer()
+    return
+  endif
   if get(b:, 'lan_done_fold_enabled', 0)
     call s:disable_done_folds()
   else

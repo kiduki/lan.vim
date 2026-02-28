@@ -181,11 +181,13 @@ function! lan#note_buffer#open() abort
 
   let l:today_lnum = lan#note_buffer#find_line_exact(lan#core#today_header())
   if l:today_lnum > 0
+    call cursor(l:today_lnum, 1)
     return
   endif
 
   let l:inserted = s:insert_today_template_buf()
   call s:carry_over_from_prev_buf(1, l:inserted)
+  call cursor(1, 1)
 endfunction
 
 function! s:header_and_seed_line(kind) abort
