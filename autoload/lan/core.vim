@@ -119,11 +119,20 @@ function! lan#core#startinsert_for_new_item(lnum) abort
 endfunction
 
 function! lan#core#ensure_help_tags() abort
-  let l:doc_dir = fnamemodify(expand("<sfile>:p"), ":h:h") . "/doc"
-  if !isdirectory(l:doc_dir) || !filereadable(l:doc_dir . "/lan.txt")
+  let l:help_files = globpath(&runtimepath, 'doc/lan.txt', 0, 1)
+  if empty(l:help_files)
     return
   endif
-  silent! execute "helptags " . fnameescape(l:doc_dir)
+
+  let l:seen = {}
+  for l:help_file in l:help_files
+    let l:doc_dir = fnamemodify(l:help_file, ':h')
+    if has_key(l:seen, l:doc_dir)
+      continue
+    endif
+    let l:seen[l:doc_dir] = 1
+    silent! execute 'helptags ' . fnameescape(l:doc_dir)
+  endfor
 endfunction
 
 function! lan#core#help() abort
@@ -134,7 +143,7 @@ function! lan#core#help() abort
         \ '  :LanToggleDone             Toggle done on target task',
         \ '  :LanToggleProgress         Toggle progress flag 🚩',
         \ '  :LanToggleWaiting          Toggle waiting flag ⌛',
-        \ '  :h Lan                    Show Vim help for lan.vim',
+        \ '  :help lan.vim             Show Vim help for lan.vim',
         \ '[lan] vimrc sample (copy/paste)',
         \ '  augroup lan_user_setup',
         \ '    autocmd!',

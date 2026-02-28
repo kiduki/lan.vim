@@ -4,7 +4,7 @@
 ## 機能
 - `:Lan` で今日のセクションを作成・オープン（未完了タスクを前日から引き継ぎ）。  
 - `:Lanb` / `:Lanq` / `:Lann` でノートを開かずに Blocking / Queue / Notes へ追記。  
-- `:h Lan` でヘルプを表示。
+- `:help lan.vim` でヘルプを表示（`lan.vim` 指定でのみ開く）。
 - `:LanToggleDone` / `:LanToggleProgress` / `:LanToggleWaiting` でユーザーコマンドからも状態トグル可能。  
 - 完了タスク折りたたみ時に件数を表示。  
 - 追加系マップ実行時はプレフィックス直後（行末）からすぐ入力できる。  
@@ -32,7 +32,7 @@ augroup END
 ```
 
 `setup()` 以外の設定方法はサポート対象外です。
-`setup()` 実行時にヘルプタグを生成するため `:help Lan` を利用できます。
+`setup()` 実行時にヘルプタグを生成します。ヘルプは `:help lan.vim` を使ってください（`lan` / `Lan` はVim標準ヘルプに解決される場合があります）。
 
 ### コマンド
 - `:Lan`  
@@ -43,8 +43,8 @@ augroup END
   ノートを開かずに、今日の **Queue** 末尾へ `- [ ] {text}` を追記。
 - `:Lann {text}`  
   ノートを開かずに、今日の **Notes** 末尾へ `- {text}` を追記。
-- `:h Lan`
-  Vimヘルプを表示。
+- `:help lan.vim`
+  Vimヘルプを表示（`lan.vim` 指定でのみ開く）。
 - `:LanToggleDone`  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
 - `:LanToggleProgress`  
