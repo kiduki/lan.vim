@@ -4,7 +4,11 @@
 ## 機能
 - `:Lan` で今日のセクションを作成・オープン（未完了タスクを前日から引き継ぎ）。  
 - `:Lanb` / `:Lanq` / `:Lann` でノートを開かずに Blocking / Queue / Notes へ追記。  
-- ノートバッファ内の専用マッピングでタスク追加・階層対応の完了トグル。  
+- `:LanHelp` でコマンド・キーマップ一覧を `:messages` に表示。  
+- `:LanToggleDone` / `:LanToggleProgress` / `:LanToggleWaiting` でユーザーコマンドからも状態トグル可能。  
+- 完了タスク折りたたみ時に件数を表示。  
+- 追加系マップ実行時はプレフィックス直後（行末）からすぐ入力できる。  
+- 複数行に及ぶ状態変更は1回の `u` で戻せるよう undo 単位を調整。  
 
 ## 使い方（vimrc の記載）
 ```vim
@@ -31,6 +35,14 @@ let g:lan_note_map_toggle_fold = '<Leader>lanz'
   ノートを開かずに、今日の **Queue** 末尾へ `- [ ] {text}` を追記。
 - `:Lann {text}`  
   ノートを開かずに、今日の **Notes** 末尾へ `- {text}` を追記。
+- `:LanHelp`  
+  利用可能なコマンドと現在のマッピング設定を `:messages` に表示。
+- `:LanToggleDone`  
+  カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
+- `:LanToggleProgress`  
+  カーソル位置のタスクの進行中フラグ `🚩` をON/OFF（完了済みは対象外）。
+- `:LanToggleWaiting`  
+  カーソル位置のタスクの待機中フラグ `⌛` をON/OFF（完了済みは対象外）。
 
 ### ノートバッファ内マッピング
 ノートファイル（`g:lan_file`）を開いているときのみ有効です。
@@ -49,7 +61,7 @@ let g:lan_note_map_toggle_fold = '<Leader>lanz'
 - `g:lan_note_map_waiting`（既定: `<Leader>lanw`）  
   カーソル位置のタスクの待機中フラグ `⌛` をON/OFF（完了済みは対象外）。
 - `g:lan_note_map_toggle_fold`（既定: `<Leader>lanz`）  
-  完了済みタスク（配下の深いインデントを含む）を一括で折り畳みON/OFF。
+  完了済みタスク（配下の深いインデントを含む）を一括で折り畳みON/OFF。ON時は折りたたみ件数を表示。
 
 ----
 

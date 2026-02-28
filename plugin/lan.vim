@@ -6,6 +6,9 @@
 "   :Lanb {text}    ノートを開かずに、今日の Blocking Tasks 末尾へ "- [ ] {text}" を追記。
 "   :Lanq {text}    ノートを開かずに、今日の Queue 末尾へ "- [ ] {text}" を追記。
 "   :Lann {text}    ノートを開かずに、今日の Notes 末尾へ "- {text}" を追記。
+"   :LanHelp        コマンドとキーマップのヘルプを :messages に表示。
+"   :LanToggleDone / :LanToggleProgress / :LanToggleWaiting
+"                  カーソル位置タスクの状態をトグル。
 "
 " Note-buffer mappings (STRICT; do NOT auto-create; error if missing):
 "   g:lan_note_map_add_block   default: <Leader>lanb   -> TODAY Blocking に "- [ ] " を追加して挿入へ
@@ -62,12 +65,17 @@ let s:RX_WAITING = '^\s*-\s\[\s\]\s*⌛\s*'
 let s:HDR_BLOCK = '### 🔥 Blocking Tasks'
 let s:HDR_QUEUE = '### 📥 Queue'
 let s:HDR_NOTES = '### 🧠 Notes'
+let s:undo_join_next = 0
 
 " ---------------- commands ----------------
 command! Lan  call s:lan_open()
 command! -nargs=+ Lanb call s:lan_add_file('block', <q-args>)
 command! -nargs=+ Lanq call s:lan_add_file('queue', <q-args>)
 command! -nargs=+ Lann call s:lan_add_file('memo',  <q-args>)
+command! LanHelp call s:lan_help()
+command! LanToggleDone call s:lan_toggle_done()
+command! LanToggleProgress call s:lan_toggle_progress()
+command! LanToggleWaiting call s:lan_toggle_waiting()
 
 " ---------------- mappings (note buffer only) ----------------
 augroup lan_note_maps
@@ -134,6 +142,68 @@ endfunction
 function! s:die(msg) abort
   echoerr '[lan] ' . a:msg
   throw 'lan_error'
+endfunction
+
+function! s:is_note_buffer() abort
+  return expand('%:p') ==# s:note_file_path()
+endfunction
+
+function! s:require_note_buffer() abort
+  if !s:is_note_buffer()
+    echoerr '[lan] Open note buffer first with :Lan.'
+    return 0
+  endif
+  return 1
+endfunction
+
+function! s:undo_block_begin() abort
+  let s:undo_join_next = 0
+endfunction
+
+function! s:undo_block_end() abort
+  let s:undo_join_next = 0
+endfunction
+
+function! s:setline_with_undo(lnum, text) abort
+  if getline(a:lnum) ==# a:text
+    return 0
+  endif
+  if s:undo_join_next
+    silent! undojoin
+  endif
+  call setline(a:lnum, a:text)
+  let s:undo_join_next = 1
+  return 1
+endfunction
+
+function! s:startinsert_for_new_item(lnum) abort
+  call cursor(a:lnum, strlen(getline(a:lnum)) + 1)
+  startinsert!
+endfunction
+
+function! s:lan_help() abort
+  let l:lines = [
+        \ '[lan] Commands',
+        \ '  :Lan                       Open/create today note',
+        \ '  :Lanb {text} / :Lanq {text} / :Lann {text}',
+        \ '  :LanToggleDone             Toggle done on target task',
+        \ '  :LanToggleProgress         Toggle progress flag 🚩',
+        \ '  :LanToggleWaiting          Toggle waiting flag ⌛',
+        \ '  :LanHelp                   Show this help',
+        \ '[lan] Note mappings',
+        \ '  add-block=' . g:lan_note_map_add_block,
+        \ '  add-queue=' . g:lan_note_map_add_queue,
+        \ '  add-note=' . g:lan_note_map_add_note,
+        \ '  add-auto=' . g:lan_note_map_add_auto,
+        \ '  toggle-done=' . g:lan_note_map_toggle,
+        \ '  toggle-progress=' . g:lan_note_map_progress,
+        \ '  toggle-waiting=' . g:lan_note_map_waiting,
+        \ '  toggle-fold=' . g:lan_note_map_toggle_fold
+        \ ]
+  for l:line in l:lines
+    echom l:line
+  endfor
+  echo '[lan] Help printed to :messages.'
 endfunction
 
 " ---------------- shared helpers ----------------
@@ -374,8 +444,7 @@ function! s:lan_note_insert_strict(kind) abort
         startinsert!
         return
       endif
-      call cursor(l:inserted, 1)
-      startinsert!
+      call s:startinsert_for_new_item(l:inserted)
     else
       let l:inserted = s:append_lines_under_buf(l:today_lnum, l:hdr, ['- [ ] '])
       " 追加した行（末尾）に移動して行末で挿入へ
@@ -385,8 +454,7 @@ function! s:lan_note_insert_strict(kind) abort
         startinsert!
         return
       endif
-      call cursor(l:inserted, 1)
-      startinsert!
+      call s:startinsert_for_new_item(l:inserted)
     endif
   catch /^lan_error$/
   endtry
@@ -465,8 +533,7 @@ function! s:lan_note_insert_auto() abort
       startinsert!
       return
     endif
-    call cursor(l:inserted, 1)
-    startinsert!
+    call s:startinsert_for_new_item(l:inserted)
   catch /^lan_error$/
   endtry
 endfunction
@@ -749,7 +816,7 @@ function! s:set_task_done(lnum, done) abort
   else
     let l:new = substitute(l:line, '^\(\s*-\s\)\[x\]\(\s*\)', '\1[ ]\2', '')
   endif
-  call setline(a:lnum, l:new)
+  call s:setline_with_undo(a:lnum, l:new)
 endfunction
 
 function! s:is_section_break_lnum(lnum) abort
@@ -837,19 +904,27 @@ function! s:propagate_to_ancestors(start_lnum) abort
 endfunction
 
 function! s:lan_toggle_done() abort
+  if !s:require_note_buffer()
+    return
+  endif
   let l:target = s:find_target_task_lnum_from_cursor()
   if l:target == 0
     echoerr '[lan] No task line found above cursor.'
     return
   endif
 
+  call s:undo_block_begin()
   let l:new_done = !s:task_is_done(l:target)
   call s:set_task_done(l:target, l:new_done)
   call s:apply_done_to_descendants(l:target, l:new_done)
   call s:propagate_to_ancestors(l:target)
+  call s:undo_block_end()
 endfunction
 
 function! s:lan_toggle_progress() abort
+  if !s:require_note_buffer()
+    return
+  endif
   let l:target = s:find_target_task_lnum_from_cursor()
   if l:target == 0
     echoerr '[lan] No task line found above cursor.'
@@ -861,10 +936,15 @@ function! s:lan_toggle_progress() abort
 
   let l:line = getline(l:target)
   let l:new = s:toggle_progress_flag_line(l:line)
-  call setline(l:target, l:new)
+  call s:undo_block_begin()
+  call s:setline_with_undo(l:target, l:new)
+  call s:undo_block_end()
 endfunction
 
 function! s:lan_toggle_waiting() abort
+  if !s:require_note_buffer()
+    return
+  endif
   let l:target = s:find_target_task_lnum_from_cursor()
   if l:target == 0
     echoerr '[lan] No task line found above cursor.'
@@ -876,7 +956,9 @@ function! s:lan_toggle_waiting() abort
 
   let l:line = getline(l:target)
   let l:new = s:toggle_waiting_flag_line(l:line)
-  call setline(l:target, l:new)
+  call s:undo_block_begin()
+  call s:setline_with_undo(l:target, l:new)
+  call s:undo_block_end()
 endfunction
 
 " ===============================
@@ -889,16 +971,18 @@ endfunction
 function! s:fold_done_tasks() abort
   let l:today_lnum = s:find_line_exact_buf(s:today_header())
   if l:today_lnum == 0
-    return
+    return 0
   endif
   let l:lnum = l:today_lnum + 1
   let l:last = s:section_end_buf(l:today_lnum)
+  let l:folded_groups = 0
   while l:lnum <= l:last
     if getline(l:lnum) =~# '^\s*-\s\[x\]\s*'
       let l:group_start = l:lnum
       let l:group_end = l:lnum
 
       while l:lnum <= l:last && getline(l:lnum) =~# '^\s*-\s\[x\]\s*'
+        let l:folded_groups += 1
         let l:root_indent = indent(l:lnum)
         let l:end = l:lnum
         for l:i in range(l:lnum + 1, l:last)
@@ -921,6 +1005,7 @@ function! s:fold_done_tasks() abort
     endif
     let l:lnum += 1
   endwhile
+  return l:folded_groups
 endfunction
 
 function! s:enable_done_folds() abort
@@ -934,8 +1019,9 @@ function! s:enable_done_folds() abort
   setlocal foldmethod=manual
   setlocal foldenable
   call s:clear_manual_folds()
-  call s:fold_done_tasks()
+  let l:folded = s:fold_done_tasks()
   let b:lan_done_fold_enabled = 1
+  echo '[lan] Folded ' . l:folded . ' completed task(s).'
 endfunction
 
 function! s:disable_done_folds() abort
@@ -947,6 +1033,7 @@ function! s:disable_done_folds() abort
     let &l:foldenable = b:lan_prev_foldenable
   endif
   let b:lan_done_fold_enabled = 0
+  echo '[lan] Done-task folding disabled.'
 endfunction
 
 function! s:lan_toggle_done_fold() abort
