@@ -12,19 +12,23 @@
 
 ## 使い方（vimrc の記載）
 ```vim
-" lan.vim を読み込んだ後に設定してください
-let g:lan_file = expand('~/long-ass-note.md')
-
-" ノート内マッピング（必要に応じて変更）
-let g:lan_note_map_add_block = '<Leader>lanb'
-let g:lan_note_map_add_queue = '<Leader>lanq'
-let g:lan_note_map_add_note  = '<Leader>lann'
-let g:lan_note_map_add_auto  = '<Leader>lana'
-let g:lan_note_map_toggle    = '<Leader>lanx'
-let g:lan_note_map_progress  = '<Leader>lanp'
-let g:lan_note_map_waiting   = '<Leader>lanw'
-let g:lan_note_map_toggle_fold = '<Leader>lanz'
+" 推奨: setup() でまとめて設定
+call lan#setup({
+      \ 'file': expand('~/notes/lan.md'),
+      \ 'note_maps': {
+      \   'add_block': '<Leader>lnb',
+      \   'add_queue': '<Leader>lnq',
+      \   'add_note': '<Leader>lnn',
+      \   'add_auto': '<Leader>lna',
+      \   'toggle': '<Leader>lnx',
+      \   'progress': '<Leader>lnp',
+      \   'waiting': '<Leader>lnw',
+      \   'toggle_fold': '<Leader>lnz',
+      \ },
+      \})
 ```
+
+従来どおり `g:lan_file` / `g:lan_note_map_*` を個別に設定する方式も引き続き利用できます。
 
 ### コマンド
 - `:Lan`  
