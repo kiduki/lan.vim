@@ -55,7 +55,7 @@ function! lan#core#today_header() abort
 endfunction
 
 function! lan#core#note_file_path() abort
-  return fnamemodify(expand(g:lan_file), ':p')
+  return fnamemodify(expand(lan#config#file()), ':p')
 endfunction
 
 function! lan#core#today_template_lines() abort
@@ -127,15 +127,29 @@ function! lan#core#help() abort
         \ '  :LanToggleProgress         Toggle progress flag 🚩',
         \ '  :LanToggleWaiting          Toggle waiting flag ⌛',
         \ '  :LanHelp                   Show this help',
-        \ '[lan] Note mappings',
-        \ '  add-block=' . g:lan_note_map_add_block,
-        \ '  add-queue=' . g:lan_note_map_add_queue,
-        \ '  add-note=' . g:lan_note_map_add_note,
-        \ '  add-auto=' . g:lan_note_map_add_auto,
-        \ '  toggle-done=' . g:lan_note_map_toggle,
-        \ '  toggle-progress=' . g:lan_note_map_progress,
-        \ '  toggle-waiting=' . g:lan_note_map_waiting,
-        \ '  toggle-fold=' . g:lan_note_map_toggle_fold
+        \ '[lan] vimrc sample (copy/paste)',
+        \ '  call lan#setup({',
+        \ '        \ ''file'': ' . string(lan#config#file()) . ',',
+        \ '        \ ''note_maps'': {',
+        \ '        \   ''add_block'': ' . string(lan#config#map('add_block')) . ',',
+        \ '        \   ''add_queue'': ' . string(lan#config#map('add_queue')) . ',',
+        \ '        \   ''add_note'': ' . string(lan#config#map('add_note')) . ',',
+        \ '        \   ''add_auto'': ' . string(lan#config#map('add_auto')) . ',',
+        \ '        \   ''toggle'': ' . string(lan#config#map('toggle')) . ',',
+        \ '        \   ''progress'': ' . string(lan#config#map('progress')) . ',',
+        \ '        \   ''waiting'': ' . string(lan#config#map('waiting')) . ',',
+        \ '        \   ''toggle_fold'': ' . string(lan#config#map('toggle_fold')),
+        \ '        \ },',
+        \ '        \})',
+        \ '[lan] Effective note mappings',
+        \ '  add-block=' . lan#config#map('add_block'),
+        \ '  add-queue=' . lan#config#map('add_queue'),
+        \ '  add-note=' . lan#config#map('add_note'),
+        \ '  add-auto=' . lan#config#map('add_auto'),
+        \ '  toggle-done=' . lan#config#map('toggle'),
+        \ '  toggle-progress=' . lan#config#map('progress'),
+        \ '  toggle-waiting=' . lan#config#map('waiting'),
+        \ '  toggle-fold=' . lan#config#map('toggle_fold')
         \ ]
   for l:line in l:lines
     echom l:line

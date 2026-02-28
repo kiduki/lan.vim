@@ -28,7 +28,7 @@ call lan#setup({
       \})
 ```
 
-従来どおり `g:lan_file` / `g:lan_note_map_*` を個別に設定する方式も引き続き利用できます。
+`setup()` 以外の設定方法はサポート対象外です。
 
 ### コマンド
 - `:Lan`  
@@ -49,22 +49,23 @@ call lan#setup({
   カーソル位置のタスクの待機中フラグ `⌛` をON/OFF（完了済みは対象外）。
 
 ### ノートバッファ内マッピング
-ノートファイル（`g:lan_file`）を開いているときのみ有効です。
-- `g:lan_note_map_add_block`（既定: `<Leader>lanb`）  
+ノートファイル（`setup()` の `file`）を開いているときのみ有効です。  
+以下は `setup()` の `note_maps` キーです。
+- `add_block`（既定: `<Leader>lanb`）  
   TODAY の **Blocking Tasks** に `- [ ] ` を追加して挿入。
-- `g:lan_note_map_add_queue`（既定: `<Leader>lanq`）  
+- `add_queue`（既定: `<Leader>lanq`）  
   TODAY の **Queue** に `- [ ] ` を追加して挿入。
-- `g:lan_note_map_add_note`（既定: `<Leader>lann`）  
+- `add_note`（既定: `<Leader>lann`）  
   TODAY の **Notes** に `- ` を追加して挿入。
-- `g:lan_note_map_add_auto`（既定: `<Leader>lana`）  
+- `add_auto`（既定: `<Leader>lana`）  
   行末（末尾文字上を含む）にいるときのみ、カーソルがあるセクション（Blocking / Queue / Notes）に応じて追加して挿入（行中の場合は通常の入力として扱う）。
-- `g:lan_note_map_toggle`（既定: `<Leader>lanx`）  
+- `toggle`（既定: `<Leader>lanx`）  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
-- `g:lan_note_map_progress`（既定: `<Leader>lanp`）  
+- `progress`（既定: `<Leader>lanp`）  
   カーソル位置のタスクの進行中フラグ `🚩` をON/OFF（完了済みは対象外）。
-- `g:lan_note_map_waiting`（既定: `<Leader>lanw`）  
+- `waiting`（既定: `<Leader>lanw`）  
   カーソル位置のタスクの待機中フラグ `⌛` をON/OFF（完了済みは対象外）。
-- `g:lan_note_map_toggle_fold`（既定: `<Leader>lanz`）  
+- `toggle_fold`（既定: `<Leader>lanz`）  
   完了済みタスク（配下の深いインデントを含む）を一括で折り畳みON/OFF。ON時は折りたたみ件数を表示。
 
 ----

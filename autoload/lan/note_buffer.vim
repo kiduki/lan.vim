@@ -242,7 +242,7 @@ function! s:find_section_kind_from_cursor(date_lnum) abort
 endfunction
 
 function! lan#note_buffer#map_add_auto_keys() abort
-  let l:key_notation = substitute(g:lan_note_map_add_auto, '<\([^>]\+\)>', '\= "\\<" . toupper(submatch(1)) . ">"', 'g')
+  let l:key_notation = substitute(lan#config#map('add_auto'), '<\([^>]\+\)>', '\= "\\<" . toupper(submatch(1)) . ">"', 'g')
   return eval('"' . escape(l:key_notation, '"') . '"')
 endfunction
 

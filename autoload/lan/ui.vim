@@ -43,35 +43,35 @@ function! s:maybe_define_note_maps() abort
   endif
 
   call s:maybe_define_note_map(
-        \ g:lan_note_map_add_block, 'n',
+        \ lan#config#map('add_block'), 'n',
         \ ':call lan#note_buffer#insert_strict("block")<CR>',
         \ 'add-block')
   call s:maybe_define_note_map(
-        \ g:lan_note_map_add_queue, 'n',
+        \ lan#config#map('add_queue'), 'n',
         \ ':call lan#note_buffer#insert_strict("queue")<CR>',
         \ 'add-queue')
   call s:maybe_define_note_map(
-        \ g:lan_note_map_add_note, 'n',
+        \ lan#config#map('add_note'), 'n',
         \ ':call lan#note_buffer#insert_strict("memo")<CR>',
         \ 'add-note')
   call s:maybe_define_note_map(
-        \ g:lan_note_map_add_auto, 'i',
+        \ lan#config#map('add_auto'), 'i',
         \ 'lan#ui#eval_add_auto_map()',
         \ 'add-auto')
   call s:maybe_define_note_map(
-        \ g:lan_note_map_toggle, 'n',
+        \ lan#config#map('toggle'), 'n',
         \ ':call lan#task_toggle#done()<CR>',
         \ 'toggle-done')
   call s:maybe_define_note_map(
-        \ g:lan_note_map_progress, 'n',
+        \ lan#config#map('progress'), 'n',
         \ ':call lan#task_toggle#progress()<CR>',
         \ 'toggle-progress')
   call s:maybe_define_note_map(
-        \ g:lan_note_map_waiting, 'n',
+        \ lan#config#map('waiting'), 'n',
         \ ':call lan#task_toggle#waiting()<CR>',
         \ 'toggle-waiting')
   call s:maybe_define_note_map(
-        \ g:lan_note_map_toggle_fold, 'n',
+        \ lan#config#map('toggle_fold'), 'n',
         \ ':call lan#fold#toggle_done_fold()<CR>',
         \ 'toggle-fold')
 endfunction
