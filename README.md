@@ -17,6 +17,8 @@ let g:lan_note_map_add_queue = '<Leader>lanq'
 let g:lan_note_map_add_note  = '<Leader>lann'
 let g:lan_note_map_add_auto  = '<Leader>lana'
 let g:lan_note_map_toggle    = '<Leader>lanx'
+let g:lan_note_map_progress  = '<Leader>lanp'
+let g:lan_note_map_waiting   = '<Leader>lanw'
 let g:lan_note_map_toggle_fold = '<Leader>lanz'
 ```
 
@@ -42,6 +44,10 @@ let g:lan_note_map_toggle_fold = '<Leader>lanz'
   行末（末尾文字上を含む）にいるときのみ、カーソルがあるセクション（Blocking / Queue / Notes）に応じて追加して挿入（行中の場合は通常の入力として扱う）。
 - `g:lan_note_map_toggle`（既定: `<Leader>lanx`）  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
+- `g:lan_note_map_progress`（既定: `<Leader>lanp`）  
+  カーソル位置のタスクの進行中フラグ `🚩` をON/OFF（完了済みは対象外）。
+- `g:lan_note_map_waiting`（既定: `<Leader>lanw`）  
+  カーソル位置のタスクの待機中フラグ `⌛` をON/OFF（完了済みは対象外）。
 - `g:lan_note_map_toggle_fold`（既定: `<Leader>lanz`）  
   完了済みタスク（配下の深いインデントを含む）を一括で折り畳みON/OFF。
 
