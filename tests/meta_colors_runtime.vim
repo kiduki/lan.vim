@@ -9,6 +9,15 @@ function! s:fail(msg) abort
   cquit 1
 endfunction
 
+function! s:match_pattern(group) abort
+  for l:m in getmatches()
+    if get(l:m, 'group', '') ==# a:group
+      return get(l:m, 'pattern', '')
+    endif
+  endfor
+  return ''
+endfunction
+
 let s:tmp = tempname() . '.md'
 call lan#setup({
       \ 'file': s:tmp,
@@ -38,6 +47,23 @@ execute 'edit ' . fnameescape(s:tmp)
 
 if !exists('b:lan_label_matchid') || !exists('b:lan_priority_matchid') || !exists('b:lan_due_matchid')
   call s:fail('meta colors runtime: metadata highlight match ids are missing')
+endif
+
+let s:priority_pat = s:match_pattern('lanPriorityMeta')
+let s:due_pat = s:match_pattern('lanDueMeta')
+if s:priority_pat ==# '' || s:due_pat ==# ''
+  call s:fail('meta colors runtime: match patterns are missing')
+endif
+
+let s:task_line = getline(5)
+if matchstr(s:task_line, s:priority_pat) !=# 'p1'
+  call s:fail('meta colors runtime: priority pattern did not match p1')
+endif
+if matchstr(s:task_line, s:due_pat) !=# 'due:2026-03-03'
+  call s:fail('meta colors runtime: due pattern did not match due date')
+endif
+if matchstr('- [ ] invalid_due due:xxxx-xx-xx', s:due_pat) !=# ''
+  call s:fail('meta colors runtime: due pattern matched invalid due token')
 endif
 
 let s:label_hl = execute('silent highlight lanLabelMeta')

@@ -104,6 +104,6 @@ function! s:maybe_define_note_syntax() abort
 
   let b:lan_paren_matchid = matchadd('lanParenEmphasis', '\%(^##\s.*\)\@<!\v\(\zs[^)]*\ze\)', 1000)
   let b:lan_label_matchid = matchadd('lanLabelMeta', '@[0-9A-Za-z_][0-9A-Za-z_-]*', 1001)
-  let b:lan_priority_matchid = matchadd('lanPriorityMeta', '\vp[1-4]\>', 1001)
-  let b:lan_due_matchid = matchadd('lanDueMeta', '\vdue:\d{4}-\d{2}-\d{2}\>', 1001)
+  let b:lan_priority_matchid = matchadd('lanPriorityMeta', 'p[1-4]\>', 1001)
+  let b:lan_due_matchid = matchadd('lanDueMeta', 'due:\d\{4}-\d\{2}-\d\{2}\>', 1001)
 endfunction
