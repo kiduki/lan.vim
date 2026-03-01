@@ -50,7 +50,7 @@ function! lan#metadata#parse_task_line(line) abort
 
   let l:body_tokens = []
   for l:token in split(l:rest)
-    if l:token =~# '^[@+][[:alnum:]_][[:alnum:]_-]*$'
+    if l:token =~# '^[@+]\%([[:alnum:]_]\|[^ -~[:space:]]\)\%([[:alnum:]_-]\|[^ -~[:space:]]\)*$'
       if l:token[0] ==# '@'
         call s:add_unique(l:out.labels, l:token)
       else

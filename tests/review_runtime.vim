@@ -105,5 +105,10 @@ if len(get(s:assignee_parsed, 'assignees', [])) != 1 || get(s:assignee_parsed, '
   call s:fail('review runtime: assignee token parse/dedup failed')
 endif
 
+let s:assignee_ja_parsed = lan#metadata#parse_task_line('- [ ] assign_task +ななし')
+if len(get(s:assignee_ja_parsed, 'assignees', [])) != 1 || get(s:assignee_ja_parsed, 'assignees', [])[0] !=# '+ななし'
+  call s:fail('review runtime: japanese assignee token parse failed')
+endif
+
 call delete(s:tmp)
 cquit 0

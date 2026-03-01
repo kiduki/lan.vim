@@ -65,6 +65,9 @@ endif
 if matchstr('+alice', s:assignee_pat) !=# '+alice'
   call s:fail('meta colors runtime: assignee pattern did not match +assignee')
 endif
+if matchstr('+ななし', s:assignee_pat) !=# '+ななし'
+  call s:fail('meta colors runtime: assignee pattern did not match japanese +assignee')
+endif
 if matchstr(s:task_line, s:priority_pat) !=# 'p1'
   call s:fail('meta colors runtime: priority pattern did not match p1')
 endif

@@ -74,7 +74,7 @@ Example: >
 Task lines may include metadata tokens:
 
 - @label
-- +assignee
+- +assignee (supports non-ASCII names such as +ななし)
 - p1 / p2 / p3 / p4
 - due:YYYY-MM-DD
 

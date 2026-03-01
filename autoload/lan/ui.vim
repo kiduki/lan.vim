@@ -105,8 +105,8 @@ function! s:maybe_define_note_syntax() abort
   execute 'highlight default lanDueMeta ctermfg=' . l:due.ctermfg . ' guifg=' . l:due.guifg . ' cterm=NONE gui=NONE'
 
   let b:lan_paren_matchid = matchadd('lanParenEmphasis', '\%(^##\s.*\)\@<!\v\(\zs[^)]*\ze\)', 1000)
-  let b:lan_label_matchid = matchadd('lanLabelMeta', '@[0-9A-Za-z_][0-9A-Za-z_-]*', 1001)
-  let b:lan_assignee_matchid = matchadd('lanAssigneeMeta', '+[0-9A-Za-z_][0-9A-Za-z_-]*', 1001)
+  let b:lan_label_matchid = matchadd('lanLabelMeta', '@\%([0-9A-Za-z_]\|[^ -~[:space:]]\)\%([0-9A-Za-z_-]\|[^ -~[:space:]]\)*', 1001)
+  let b:lan_assignee_matchid = matchadd('lanAssigneeMeta', '+\%([0-9A-Za-z_]\|[^ -~[:space:]]\)\%([0-9A-Za-z_-]\|[^ -~[:space:]]\)*', 1001)
   let b:lan_priority_matchid = matchadd('lanPriorityMeta', 'p[1-4]\>', 1001)
   let b:lan_due_matchid = matchadd('lanDueMeta', 'due:\d\{4}-\d\{2}-\d\{2}\>', 1001)
 endfunction
