@@ -145,7 +145,7 @@ function! lan#core#help() abort
         \ '  :LanToggleProgress         Toggle progress flag 🚩',
         \ '  :LanToggleWaiting          Toggle waiting flag ⌛',
         \ '  :help lan.vim             Show Vim help for lan.vim',
-        \ '  setup(): meta_colors(label/priority/due) is supported',
+        \ '  setup(): meta_colors(label/assignee/priority/due) is supported',
         \ '[lan] vimrc sample (copy/paste)',
         \ '  augroup lan_user_setup',
         \ '    autocmd!',
@@ -174,6 +174,7 @@ function! lan#core#help() abort
         \ '  toggle-fold=' . lan#config#map('toggle_fold'),
         \ '[lan] Effective metadata colors',
         \ '  label=' . string(lan#config#meta_color('label')),
+        \ '  assignee=' . string(lan#config#meta_color('assignee')),
         \ '  priority=' . string(lan#config#meta_color('priority')),
         \ '  due=' . string(lan#config#meta_color('due'))
         \ ]

@@ -4,7 +4,7 @@
 ## 機能
 - `:Lan` で今日のセクションを作成・オープン（未完了タスクを前日から引き継ぎ）。  
 - `:Lanb` / `:Lanq` / `:Lann` でノートを開かずに Blocking / Queue / Notes へ追記。  
-- タスク内メタデータ記法 `@label` / `p1..p4` / `due:YYYY-MM-DD` をサポート。
+- タスク内メタデータ記法 `@label` / `+assignee` / `p1..p4` / `due:YYYY-MM-DD` をサポート。
 - `:LanReview[!] [stale_days]` で週次レビュー（期限切れ/今週期限/滞留）を表示。
 - `:help lan.vim` でヘルプを表示（`lan.vim` 指定でのみ開く）。
 - `:LanToggleDone` / `:LanToggleProgress` / `:LanToggleWaiting` でユーザーコマンドからも状態トグル可能。  
@@ -21,6 +21,7 @@ augroup lan_user_setup
         \ 'file': expand('~/notes/lan.md'),
         \ 'meta_colors': {
         \   'label': {'ctermfg': '81', 'guifg': '#61afef'},
+        \   'assignee': {'ctermfg': '114', 'guifg': '#98c379'},
         \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
         \   'due': {'ctermfg': '203', 'guifg': '#e06c75'},
         \ },
@@ -84,18 +85,20 @@ augroup END
 
 ### メタデータ記法
 - 形式:
-  `- [ ] タスク本文 @label p1 due:2026-03-03`
+  `- [ ] タスク本文 @label +assignee p1 due:2026-03-03`
 - ルール:
   - `@label` は複数指定可（重複は内部で除外）。
+  - `+assignee` は複数指定可（重複は内部で除外）。
   - `p1`〜`p4` は優先度（最後に書かれた値を採用）。
   - `due:YYYY-MM-DD` は期限日（最後に書かれた値を採用）。
   - 上記以外のトークンは本文として扱う。
 
 ### メタデータ色設定（setup）
-- `meta_colors.label` / `meta_colors.priority` / `meta_colors.due`
+- `meta_colors.label` / `meta_colors.assignee` / `meta_colors.priority` / `meta_colors.due`
 - 各キーに `ctermfg` と `guifg` を指定可能
 - 既定色:
   - `label`: `ctermfg=81`, `guifg=#61afef`
+  - `assignee`: `ctermfg=114`, `guifg=#98c379`
   - `priority`: `ctermfg=220`, `guifg=#e5c07b`
   - `due`: `ctermfg=203`, `guifg=#e06c75`
 

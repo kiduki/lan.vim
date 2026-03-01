@@ -5,6 +5,7 @@ let s:config = {
       \ 'file': expand('~/notes/lan.md'),
       \ 'meta_colors': {
       \   'label': {'ctermfg': '81',  'guifg': '#61afef'},
+      \   'assignee': {'ctermfg': '114', 'guifg': '#98c379'},
       \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
       \   'due': {'ctermfg': '203', 'guifg': '#e06c75'}
       \ },
@@ -25,6 +26,7 @@ function! lan#config#init_defaults() abort
         \ 'file': expand('~/notes/lan.md'),
         \ 'meta_colors': {
         \   'label': {'ctermfg': '81',  'guifg': '#61afef'},
+        \   'assignee': {'ctermfg': '114', 'guifg': '#98c379'},
         \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
         \   'due': {'ctermfg': '203', 'guifg': '#e06c75'}
         \ },

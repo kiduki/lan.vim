@@ -1,5 +1,5 @@
 " autoload/lan/metadata.vim
-" Task metadata parser for labels / priority / due date.
+" Task metadata parser for labels / assignees / priority / due date.
 
 function! s:is_valid_date_ymd(date_str) abort
   if a:date_str !~# '^\d\{4}-\d\{2}-\d\{2}$'
@@ -24,6 +24,7 @@ function! lan#metadata#parse_task_line(line) abort
         \ 'done': 0,
         \ 'text': '',
         \ 'labels': [],
+        \ 'assignees': [],
         \ 'priority': 0,
         \ 'due': '',
         \ 'progress': 0,
@@ -49,8 +50,12 @@ function! lan#metadata#parse_task_line(line) abort
 
   let l:body_tokens = []
   for l:token in split(l:rest)
-    if l:token =~# '^@[[:alnum:]_][[:alnum:]_-]*$'
-      call s:add_unique(l:out.labels, l:token)
+    if l:token =~# '^[@+][[:alnum:]_][[:alnum:]_-]*$'
+      if l:token[0] ==# '@'
+        call s:add_unique(l:out.labels, l:token)
+      else
+        call s:add_unique(l:out.assignees, l:token)
+      endif
       continue
     endif
 
@@ -81,6 +86,9 @@ function! lan#metadata#format_tokens(task) abort
   let l:tokens = []
   for l:label in get(a:task, 'labels', [])
     call add(l:tokens, l:label)
+  endfor
+  for l:assignee in get(a:task, 'assignees', [])
+    call add(l:tokens, l:assignee)
   endfor
   if get(a:task, 'priority', 0) > 0
     call add(l:tokens, 'p' . a:task.priority)

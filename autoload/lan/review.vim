@@ -23,8 +23,10 @@ endfunction
 
 function! s:task_identity(task) abort
   let l:labels = sort(copy(get(a:task, 'labels', [])))
+  let l:assignees = sort(copy(get(a:task, 'assignees', [])))
   return get(a:task, 'text', '')
         \ . '|' . join(l:labels, ',')
+        \ . '|' . join(l:assignees, ',')
 endfunction
 
 function! s:compare_tasks(a, b) abort

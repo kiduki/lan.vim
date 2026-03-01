@@ -24,10 +24,10 @@ call writefile([
       \ '',
       \ '### 🔥 Blocking Tasks',
       \ '',
-      \ '- [ ] overdue_task @work p1 due:' . s:yesterday,
-      \ '- [ ] due_this_week @ops p3 due:' . s:in_two_days,
-      \ '- [ ] dup_title @same p1 due:' . s:yesterday,
-      \ '- [ ] dup_title @same p3 due:' . s:in_two_days,
+      \ '- [ ] overdue_task @work +alice p1 due:' . s:yesterday,
+      \ '- [ ] due_this_week @ops +bob p3 due:' . s:in_two_days,
+      \ '- [ ] dup_title @same +carol p1 due:' . s:yesterday,
+      \ '- [ ] dup_title @same +carol p3 due:' . s:in_two_days,
       \ '- [x] done_now_task @delta p1',
       \ '- [ ] invalid_due_should_remain due:2026-02-31',
       \ '',
@@ -91,13 +91,18 @@ if s:content =~# 'done_now_task'
   call s:fail('review runtime: completed latest task should not appear in review')
 endif
 
-if s:content !~# 'dup_title @same p3 due:' . s:in_two_days
+if s:content !~# 'dup_title @same +carol p3 due:' . s:in_two_days
   call s:fail('review runtime: duplicate title latest task missing')
 endif
 
 let s:parsed = lan#metadata#parse_task_line('- [ ] invalid_due_should_remain due:2026-02-31')
 if get(s:parsed, 'text', '') !~# 'due:2026-02-31'
   call s:fail('review runtime: invalid due token should remain in parsed task text')
+endif
+
+let s:assignee_parsed = lan#metadata#parse_task_line('- [ ] assign_task +alice +alice')
+if len(get(s:assignee_parsed, 'assignees', [])) != 1 || get(s:assignee_parsed, 'assignees', [])[0] !=# '+alice'
+  call s:fail('review runtime: assignee token parse/dedup failed')
 endif
 
 call delete(s:tmp)

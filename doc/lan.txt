@@ -51,6 +51,7 @@ Example: >
         \ 'file': expand('~/notes/lan.md'),
         \ 'meta_colors': {
         \   'label': {'ctermfg': '81', 'guifg': '#61afef'},
+        \   'assignee': {'ctermfg': '114', 'guifg': '#98c379'},
         \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
         \   'due': {'ctermfg': '203', 'guifg': '#e06c75'},
         \ },
@@ -73,18 +74,20 @@ Example: >
 Task lines may include metadata tokens:
 
 - @label
+- +assignee
 - p1 / p2 / p3 / p4
 - due:YYYY-MM-DD
 
 Metadata highlight colors are configurable via:
 - setup().meta_colors.label
+- setup().meta_colors.assignee
 - setup().meta_colors.priority
 - setup().meta_colors.due
 
 Invalid due tokens (e.g. due:2026-02-31) are kept in task text.
 
 Example: >
-  - [ ] Send proposal @client p1 due:2026-03-03
+  - [ ] Send proposal @client +yamada p1 due:2026-03-03
 <
 
 LanReview categories:
@@ -94,7 +97,7 @@ LanReview categories:
 - WaitingStale (based on task continuity days)
 
 Task continuity identity for stale calculation:
-- Uses task text + labels
+- Uses task text + labels + assignees
 - Ignores priority and due changes
 
 vim:tw=78:ts=8:noet:ft=help:norl:
