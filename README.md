@@ -19,6 +19,11 @@ augroup lan_user_setup
   autocmd!
   autocmd VimEnter * call lan#setup({
         \ 'file': expand('~/notes/lan.md'),
+        \ 'meta_colors': {
+        \   'label': {'ctermfg': '81', 'guifg': '#61afef'},
+        \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
+        \   'due': {'ctermfg': '203', 'guifg': '#e06c75'},
+        \ },
         \ 'note_maps': {
         \   'add_block': '<Leader>lnb',
         \   'add_queue': '<Leader>lnq',
@@ -85,6 +90,14 @@ augroup END
   - `p1`〜`p4` は優先度（最後に書かれた値を採用）。
   - `due:YYYY-MM-DD` は期限日（最後に書かれた値を採用）。
   - 上記以外のトークンは本文として扱う。
+
+### メタデータ色設定（setup）
+- `meta_colors.label` / `meta_colors.priority` / `meta_colors.due`
+- 各キーに `ctermfg` と `guifg` を指定可能
+- 既定色:
+  - `label`: `ctermfg=81`, `guifg=#61afef`
+  - `priority`: `ctermfg=220`, `guifg=#e5c07b`
+  - `due`: `ctermfg=203`, `guifg=#e06c75`
 
 ### LanReview の判定
 - `Overdue`: 期限日が今日より前の未完了タスク。

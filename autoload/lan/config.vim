@@ -3,6 +3,11 @@
 
 let s:config = {
       \ 'file': expand('~/notes/lan.md'),
+      \ 'meta_colors': {
+      \   'label': {'ctermfg': '81',  'guifg': '#61afef'},
+      \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
+      \   'due': {'ctermfg': '203', 'guifg': '#e06c75'}
+      \ },
       \ 'note_maps': {
       \   'add_block': '<Leader>lanb',
       \   'add_queue': '<Leader>lanq',
@@ -18,6 +23,11 @@ let s:config = {
 function! lan#config#init_defaults() abort
   let s:config = {
         \ 'file': expand('~/notes/lan.md'),
+        \ 'meta_colors': {
+        \   'label': {'ctermfg': '81',  'guifg': '#61afef'},
+        \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
+        \   'due': {'ctermfg': '203', 'guifg': '#e06c75'}
+        \ },
         \ 'note_maps': {
         \   'add_block': '<Leader>lanb',
         \   'add_queue': '<Leader>lanq',
@@ -52,6 +62,28 @@ function! lan#config#setup(opts) abort
       endif
     endfor
   endif
+
+  if has_key(a:opts, 'meta_colors')
+    if type(a:opts.meta_colors) != type({})
+      echoerr '[lan] meta_colors must be a Dictionary.'
+      return
+    endif
+    for [l:key, l:spec] in items(a:opts.meta_colors)
+      if !has_key(s:config.meta_colors, l:key)
+        continue
+      endif
+      if type(l:spec) != type({})
+        echoerr '[lan] meta_colors.' . l:key . ' must be a Dictionary.'
+        return
+      endif
+      if has_key(l:spec, 'ctermfg')
+        let s:config.meta_colors[l:key].ctermfg = string(l:spec.ctermfg)
+      endif
+      if has_key(l:spec, 'guifg')
+        let s:config.meta_colors[l:key].guifg = string(l:spec.guifg)
+      endif
+    endfor
+  endif
 endfunction
 
 function! lan#config#file() abort
@@ -63,4 +95,11 @@ function! lan#config#map(key) abort
     return ''
   endif
   return s:config.note_maps[a:key]
+endfunction
+
+function! lan#config#meta_color(key) abort
+  if !has_key(s:config.meta_colors, a:key)
+    return {'ctermfg': 'NONE', 'guifg': 'NONE'}
+  endif
+  return copy(s:config.meta_colors[a:key])
 endfunction

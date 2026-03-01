@@ -49,6 +49,11 @@ and add quick entries.
 Example: >
   call lan#setup({
         \ 'file': expand('~/notes/lan.md'),
+        \ 'meta_colors': {
+        \   'label': {'ctermfg': '81', 'guifg': '#61afef'},
+        \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
+        \   'due': {'ctermfg': '203', 'guifg': '#e06c75'},
+        \ },
         \ 'note_maps': {
         \   'add_block': '<Leader>lnb',
         \   'add_queue': '<Leader>lnq',
@@ -70,6 +75,11 @@ Task lines may include metadata tokens:
 - @label
 - p1 / p2 / p3 / p4
 - due:YYYY-MM-DD
+
+Metadata highlight colors are configurable via:
+- setup().meta_colors.label
+- setup().meta_colors.priority
+- setup().meta_colors.due
 
 Invalid due tokens (e.g. due:2026-02-31) are kept in task text.
 
