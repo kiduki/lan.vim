@@ -25,8 +25,6 @@ function! s:task_identity(task) abort
   let l:labels = sort(copy(get(a:task, 'labels', [])))
   return get(a:task, 'text', '')
         \ . '|' . join(l:labels, ',')
-        \ . '|p' . get(a:task, 'priority', 0)
-        \ . '|due:' . get(a:task, 'due', '')
 endfunction
 
 function! s:compare_tasks(a, b) abort
@@ -187,8 +185,11 @@ function! s:task_line(task, detailed) abort
     let l:line .= ' ⌛'
   endif
 
+  if get(a:task, 'first_seen_date', '') !=# ''
+    let l:line .= ' | since:' . a:task.first_seen_date
+  endif
   if get(a:task, 'source_date', '') !=# ''
-    let l:line .= ' | date:' . a:task.source_date
+    let l:line .= ' | latest:' . a:task.source_date
   endif
 
   if a:detailed

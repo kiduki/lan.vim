@@ -70,7 +70,7 @@ endif
 
 let s:content = join(getline(1, '$'), "\n")
 
-if s:content !~# '## Overdue (2)'
+if s:content !~# '## Overdue (1)'
   call s:fail('review runtime: overdue count mismatch')
 endif
 if s:content !~# '## DueThisWeek (2)'
@@ -91,11 +91,8 @@ if s:content =~# 'done_now_task'
   call s:fail('review runtime: completed latest task should not appear in review')
 endif
 
-if s:content !~# 'dup_title @same p1 due:' . s:yesterday
-  call s:fail('review runtime: duplicate title overdue task missing')
-endif
 if s:content !~# 'dup_title @same p3 due:' . s:in_two_days
-  call s:fail('review runtime: duplicate title due-this-week task missing')
+  call s:fail('review runtime: duplicate title latest task missing')
 endif
 
 let s:parsed = lan#metadata#parse_task_line('- [ ] invalid_due_should_remain due:2026-02-31')

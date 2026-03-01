@@ -71,6 +71,8 @@ Task lines may include metadata tokens:
 - p1 / p2 / p3 / p4
 - due:YYYY-MM-DD
 
+Invalid due tokens (e.g. due:2026-02-31) are kept in task text.
+
 Example: >
   - [ ] Send proposal @client p1 due:2026-03-03
 <
@@ -80,5 +82,9 @@ LanReview categories:
 - DueThisWeek
 - HighPriorityStale (based on task continuity days)
 - WaitingStale (based on task continuity days)
+
+Task continuity identity for stale calculation:
+- Uses task text + labels
+- Ignores priority and due changes
 
 vim:tw=78:ts=8:noet:ft=help:norl:
