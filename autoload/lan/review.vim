@@ -128,6 +128,7 @@ function! s:open_report(lines) abort
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
   silent file [lan-review]
   call setline(1, a:lines)
+  call lan#ui#ensure_meta_syntax()
   setlocal nomodifiable
   normal! gg
 endfunction

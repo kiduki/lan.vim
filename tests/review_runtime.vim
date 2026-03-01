@@ -9,6 +9,15 @@ function! s:fail(msg) abort
   cquit 1
 endfunction
 
+function! s:match_pattern(group) abort
+  for l:m in getmatches()
+    if get(l:m, 'group', '') ==# a:group
+      return get(l:m, 'pattern', '')
+    endif
+  endfor
+  return ''
+endfunction
+
 function! s:day_header(delta_days) abort
   let l:ts = localtime() + (a:delta_days * 86400)
   return '## ' . strftime('%Y-%m-%d', l:ts) . ' (' . strftime('%a', l:ts) . ')'
@@ -66,6 +75,31 @@ endtry
 
 if expand('%:t') !=# '[lan-review]'
   call s:fail('review runtime: expected [lan-review], got ' . expand('%:t'))
+endif
+
+if !exists('b:lan_label_matchid') || !exists('b:lan_assignee_matchid') || !exists('b:lan_priority_matchid') || !exists('b:lan_due_matchid')
+  call s:fail('review runtime: metadata highlight match ids are missing')
+endif
+
+let s:label_pat = s:match_pattern('lanLabelMeta')
+let s:assignee_pat = s:match_pattern('lanAssigneeMeta')
+let s:priority_pat = s:match_pattern('lanPriorityMeta')
+let s:due_pat = s:match_pattern('lanDueMeta')
+if s:label_pat ==# '' || s:assignee_pat ==# '' || s:priority_pat ==# '' || s:due_pat ==# ''
+  call s:fail('review runtime: match patterns are missing')
+endif
+
+if matchstr('@same', s:label_pat) !=# '@same'
+  call s:fail('review runtime: label pattern did not match @label')
+endif
+if matchstr('+carol', s:assignee_pat) !=# '+carol'
+  call s:fail('review runtime: assignee pattern did not match +assignee')
+endif
+if matchstr('p3', s:priority_pat) !=# 'p3'
+  call s:fail('review runtime: priority pattern did not match pN')
+endif
+if matchstr('due:' . s:in_two_days, s:due_pat) !=# 'due:' . s:in_two_days
+  call s:fail('review runtime: due pattern did not match due date')
 endif
 
 let s:content = join(getline(1, '$'), "\n")

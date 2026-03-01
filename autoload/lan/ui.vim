@@ -9,6 +9,10 @@ function! lan#ui#maybe_define_note_syntax() abort
   call s:maybe_define_note_syntax()
 endfunction
 
+function! lan#ui#ensure_meta_syntax() abort
+  call s:ensure_meta_syntax()
+endfunction
+
 function! s:warn_map_conflict_once(lhs, mode, feature) abort
   let l:feature_key = substitute(a:feature, '[^0-9A-Za-z_]', '_', 'g')
   let l:key = 'lan_warned_map_conflict_' . a:mode . '_' . l:feature_key
@@ -88,10 +92,14 @@ function! s:maybe_define_note_syntax() abort
     return
   endif
 
-  if get(b:, 'lan_paren_syntax_defined', 0)
+  call s:ensure_meta_syntax()
+endfunction
+
+function! s:ensure_meta_syntax() abort
+  if get(b:, 'lan_meta_syntax_defined', 0)
     return
   endif
-  let b:lan_paren_syntax_defined = 1
+  let b:lan_meta_syntax_defined = 1
 
   let l:label = lan#config#meta_color('label')
   let l:assignee = lan#config#meta_color('assignee')
