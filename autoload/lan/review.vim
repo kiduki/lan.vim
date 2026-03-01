@@ -1,13 +1,6 @@
 " autoload/lan/review.vim
 " Weekly review report for lan tasks.
 
-function! s:parse_date_header(line) abort
-  if a:line =~# lan#core#rx_date()
-    return matchstr(a:line, '^## \zs\d\{4}-\d\{2}-\d\{2}\ze ')
-  endif
-  return ''
-endfunction
-
 function! s:days_between(from_ymd, to_ymd) abort
   let l:from_ts = strptime('%Y-%m-%d', a:from_ymd)
   let l:to_ts = strptime('%Y-%m-%d', a:to_ymd)
@@ -17,87 +10,11 @@ function! s:days_between(from_ymd, to_ymd) abort
   return float2nr((l:to_ts - l:from_ts) / 86400.0)
 endfunction
 
-function! s:is_valid_ymd(date_str) abort
-  return a:date_str =~# '^\d\{4}-\d\{2}-\d\{2}$'
-endfunction
-
-function! s:task_identity(task) abort
-  let l:labels = sort(copy(get(a:task, 'labels', [])))
-  let l:assignees = sort(copy(get(a:task, 'assignees', [])))
-  return get(a:task, 'text', '')
-        \ . '|' . join(l:labels, ',')
-        \ . '|' . join(l:assignees, ',')
-endfunction
-
-function! s:compare_tasks(a, b) abort
-  let l:ad = get(a:a, 'source_date', '')
-  let l:bd = get(a:b, 'source_date', '')
-  if l:ad !=# l:bd
-    return (l:ad <# l:bd) ? -1 : 1
-  endif
-
-  let l:al = get(a:a, 'lnum', 0)
-  let l:bl = get(a:b, 'lnum', 0)
-  if l:al == l:bl
-    return 0
-  endif
-  return (l:al < l:bl) ? -1 : 1
-endfunction
-
-function! s:collect_active_tasks(tasks) abort
-  let l:ordered = sort(copy(a:tasks), function('s:compare_tasks'))
-  let l:state = {}
-  let l:key_order = []
-
-  for l:task in l:ordered
-    let l:key = s:task_identity(l:task)
-    if !has_key(l:state, l:key)
-      let l:state[l:key] = {
-            \ 'is_open': 0,
-            \ 'open_start': '',
-            \ 'latest': {}
-            \ }
-      call add(l:key_order, l:key)
-    endif
-
-    if get(l:task, 'done', 0)
-      let l:state[l:key].is_open = 0
-      let l:state[l:key].open_start = ''
-      let l:state[l:key].latest = copy(l:task)
-      continue
-    endif
-
-    let l:src = get(l:task, 'source_date', '')
-    if l:state[l:key].open_start ==# '' && s:is_valid_ymd(l:src)
-      let l:state[l:key].open_start = l:src
-    endif
-
-    let l:state[l:key].is_open = 1
-    let l:state[l:key].latest = copy(l:task)
-  endfor
-
-  let l:out = []
-  for l:key in l:key_order
-    if !get(l:state[l:key], 'is_open', 0)
-      continue
-    endif
-
-    let l:task = copy(l:state[l:key].latest)
-    if get(l:state[l:key], 'open_start', '') !=# ''
-      let l:task.first_seen_date = l:state[l:key].open_start
-    else
-      let l:task.first_seen_date = get(l:task, 'source_date', '')
-    endif
-    call add(l:out, l:task)
-  endfor
-  return l:out
-endfunction
-
 function! s:categorize(tasks, stale_days) abort
   let l:cats = s:empty_categories()
   let l:today = strftime('%Y-%m-%d')
   let l:week_end = strftime('%Y-%m-%d', localtime() + (6 * 86400))
-  let l:active_tasks = s:collect_active_tasks(a:tasks)
+  let l:active_tasks = lan#task_scan#collect_active_tasks(a:tasks)
 
   for l:task in l:active_tasks
     let l:due = get(l:task, 'due', '')
@@ -131,34 +48,6 @@ function! s:categorize(tasks, stale_days) abort
   return l:cats
 endfunction
 
-function! s:collect_tasks(lines) abort
-  let l:tasks = []
-  let l:current_date = ''
-  if empty(a:lines)
-    return l:tasks
-  endif
-
-  for l:idx in range(0, len(a:lines) - 1)
-    let l:line = a:lines[l:idx]
-    let l:date_header = s:parse_date_header(l:line)
-    if l:date_header !=# ''
-      let l:current_date = l:date_header
-      continue
-    endif
-
-    let l:task = lan#metadata#parse_task_line(l:line)
-    if !get(l:task, 'is_task', 0)
-      continue
-    endif
-
-    let l:task.source_date = l:current_date
-    let l:task.lnum = l:idx + 1
-    call add(l:tasks, l:task)
-  endfor
-
-  return l:tasks
-endfunction
-
 function! s:empty_categories() abort
   return {
         \ 'overdue': [],
@@ -166,6 +55,31 @@ function! s:empty_categories() abort
         \ 'priority_stale': [],
         \ 'waiting_stale': []
         \ }
+endfunction
+
+function! s:today_task_id_set(tasks, today_ymd) abort
+  let l:ids = {}
+  for l:task in a:tasks
+    if get(l:task, 'source_date', '') !=# a:today_ymd
+      continue
+    endif
+    let l:ids[lan#task_scan#task_identity(l:task)] = 1
+  endfor
+  return l:ids
+endfunction
+
+function! s:filter_tasks_by_id(tasks, id_set) abort
+  if empty(a:id_set)
+    return []
+  endif
+
+  let l:out = []
+  for l:task in a:tasks
+    if has_key(a:id_set, lan#task_scan#task_identity(l:task))
+      call add(l:out, l:task)
+    endif
+  endfor
+  return l:out
 endfunction
 
 function! s:task_line(task, detailed) abort
@@ -232,20 +146,17 @@ function! lan#review#run(qargs, bang) abort
     endif
   endif
 
-  let l:path = lan#core#note_file_path()
-  if !filereadable(l:path)
-    echoerr '[lan] Note file not found: ' . l:path
+  try
+    let l:lines = lan#task_scan#read_note_lines()
+  catch
+    echoerr v:exception
     return
-  endif
+  endtry
 
-  let l:bn = bufnr(l:path)
-  if l:bn > 0 && getbufvar(l:bn, '&modified')
-    let l:lines = getbufline(l:bn, 1, '$')
-  else
-    let l:lines = readfile(l:path)
-  endif
-  let l:tasks = s:collect_tasks(l:lines)
-  let l:cats = s:categorize(l:tasks, l:stale_days)
+  let l:tasks = lan#task_scan#collect_tasks(l:lines)
+  let l:today_ids = s:today_task_id_set(l:tasks, strftime('%Y-%m-%d'))
+  let l:targets = s:filter_tasks_by_id(l:tasks, l:today_ids)
+  let l:cats = s:categorize(l:targets, l:stale_days)
 
   let l:out = [
         \ '# Lan Review',

@@ -76,10 +76,10 @@ endif
 if s:content !~# '## DueThisWeek (2)'
   call s:fail('review runtime: due-this-week count mismatch')
 endif
-if s:content !~# '## HighPriorityStale (1)'
+if s:content !~# '## HighPriorityStale (0)'
   call s:fail('review runtime: high-priority-stale count mismatch')
 endif
-if s:content !~# '## WaitingStale (1)'
+if s:content !~# '## WaitingStale (0)'
   call s:fail('review runtime: waiting-stale count mismatch')
 endif
 
@@ -89,6 +89,14 @@ endif
 
 if s:content =~# 'done_now_task'
   call s:fail('review runtime: completed latest task should not appear in review')
+endif
+
+if s:content =~# 'stale_priority'
+  call s:fail('review runtime: non-today task should be out of review scope')
+endif
+
+if s:content =~# 'waiting_task'
+  call s:fail('review runtime: non-today waiting task should be out of review scope')
 endif
 
 if s:content !~# 'dup_title @same +carol p3 due:' . s:in_two_days

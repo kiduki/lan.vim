@@ -20,6 +20,10 @@ function! lan#review(qargs, bang) abort
   call lan#review#run(a:qargs, a:bang)
 endfunction
 
+function! lan#stats() abort
+  call lan#stats#run()
+endfunction
+
 function! lan#help() abort
   call lan#core#help()
 endfunction

@@ -1,6 +1,6 @@
 *Lan* *lan.vim*
 
-lan.vim                                                Last change: 2026-02-28
+lan.vim                                                Last change: 2026-03-01
 
 ===============================================================================
 CONTENTS                                                    *lan-contents*
@@ -36,6 +36,13 @@ and add quick entries.
     Open weekly review report in a scratch buffer.
     Default stale_days is 7.
     Add "!" to include details such as source line number.
+    Targets only tasks that exist in today's section, then traces history.
+    Uses unsaved note-buffer changes when available.
+
+:LanStats
+    Show one-line task metrics in command area:
+    week_done / today_done / added / remaining.
+    Scans only this week's sections (Monday to today).
     Uses unsaved note-buffer changes when available.
 
 :LanToggleDone

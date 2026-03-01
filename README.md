@@ -6,6 +6,7 @@
 - `:Lanb` / `:Lanq` / `:Lann` でノートを開かずに Blocking / Queue / Notes へ追記。  
 - タスク内メタデータ記法 `@label` / `+assignee` / `p1..p4` / `due:YYYY-MM-DD` をサポート。
 - `:LanReview[!] [stale_days]` で週次レビュー（期限切れ/今週期限/滞留）を表示。
+- `:LanStats` で `week_done` / `today_done` / `added` / `remaining` をコマンドライン表示。
 - `:help lan.vim` でヘルプを表示（`lan.vim` 指定でのみ開く）。
 - `:LanToggleDone` / `:LanToggleProgress` / `:LanToggleWaiting` でユーザーコマンドからも状態トグル可能。  
 - 完了タスク折りたたみ時に件数を表示。  
@@ -55,6 +56,11 @@ augroup END
   Vimヘルプを表示（`lan.vim` 指定でのみ開く）。
 - `:LanReview[!] [stale_days]`
   週次レビューを scratch バッファに表示。`stale_days` の既定は `7`。`!` 指定時は詳細行（行番号）を表示。
+  今日セクションに存在するタスクのみを対象に、履歴を遡って集計。
+  可能ならノートバッファの未保存変更も反映して集計。
+- `:LanStats`
+  指標を1行で表示: `week_done`（今週完了）, `today_done`（今日完了）, `added`（今週追加）, `remaining`（未完了残）。
+  解析対象は今週（月曜〜今日）セクションのみ。
   可能ならノートバッファの未保存変更も反映して集計。
 - `:LanToggleDone`  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
