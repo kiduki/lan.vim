@@ -188,9 +188,6 @@ function! s:task_line(task, detailed) abort
   if get(a:task, 'first_seen_date', '') !=# ''
     let l:line .= ' | since:' . a:task.first_seen_date
   endif
-  if get(a:task, 'source_date', '') !=# ''
-    let l:line .= ' | latest:' . a:task.source_date
-  endif
 
   if a:detailed
     let l:line .= ' | lnum:' . a:task.lnum
