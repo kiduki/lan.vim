@@ -5,6 +5,7 @@
 - `:Lan` で今日のセクションを作成・オープン（未完了タスクを前日から引き継ぎ）。  
 - `:Lanb` / `:Lanq` / `:Lann` でノートを開かずに Blocking / Queue / Notes へ追記。  
 - タスク内メタデータ記法 `@label` / `p1..p4` / `due:YYYY-MM-DD` をサポート。
+- `:LanReview[!] [stale_days]` で週次レビュー（期限切れ/今週期限/滞留）を表示。
 - `:help lan.vim` でヘルプを表示（`lan.vim` 指定でのみ開く）。
 - `:LanToggleDone` / `:LanToggleProgress` / `:LanToggleWaiting` でユーザーコマンドからも状態トグル可能。  
 - 完了タスク折りたたみ時に件数を表示。  
@@ -46,6 +47,8 @@ augroup END
   ノートを開かずに、今日の **Notes** 末尾へ `- {text}` を追記。
 - `:help lan.vim`
   Vimヘルプを表示（`lan.vim` 指定でのみ開く）。
+- `:LanReview[!] [stale_days]`
+  週次レビューを scratch バッファに表示。`stale_days` の既定は `7`。`!` 指定時は詳細行（行番号）を表示。
 - `:LanToggleDone`  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
 - `:LanToggleProgress`  
@@ -81,6 +84,12 @@ augroup END
   - `p1`〜`p4` は優先度（最後に書かれた値を採用）。
   - `due:YYYY-MM-DD` は期限日（最後に書かれた値を採用）。
   - 上記以外のトークンは本文として扱う。
+
+### LanReview の判定
+- `Overdue`: 期限日が今日より前の未完了タスク。
+- `DueThisWeek`: 今日から6日後までに期限がある未完了タスク。
+- `HighPriorityStale`: `p1/p2` かつ `🚩` なしで `stale_days` 以上経過した未完了タスク。
+- `WaitingStale`: `⌛` で `stale_days` 以上経過した未完了タスク。
 
 ----
 

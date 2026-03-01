@@ -16,6 +16,10 @@ function! lan#add_file(kind, text) abort
   call lan#file_ops#add(a:kind, a:text)
 endfunction
 
+function! lan#review(qargs, bang) abort
+  call lan#review#run(a:qargs, a:bang)
+endfunction
+
 function! lan#help() abort
   call lan#core#help()
 endfunction

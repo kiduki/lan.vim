@@ -32,6 +32,11 @@ and add quick entries.
 :Lann {text}
     Add to "Notes" as "- {text}".
 
+:LanReview[!] [stale_days]
+    Open weekly review report in a scratch buffer.
+    Default stale_days is 7.
+    Add "!" to include details such as source line number.
+
 :LanToggleDone
 :LanToggleProgress
 :LanToggleWaiting
@@ -68,5 +73,11 @@ Task lines may include metadata tokens:
 Example: >
   - [ ] Send proposal @client p1 due:2026-03-03
 <
+
+LanReview categories:
+- Overdue
+- DueThisWeek
+- HighPriorityStale
+- WaitingStale
 
 vim:tw=78:ts=8:noet:ft=help:norl:

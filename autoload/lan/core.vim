@@ -140,6 +140,7 @@ function! lan#core#help() abort
         \ '[lan] Commands',
         \ '  :Lan                       Open/create today note',
         \ '  :Lanb {text} / :Lanq {text} / :Lann {text}',
+        \ '  :LanReview[!] [stale_days] Weekly review report',
         \ '  :LanToggleDone             Toggle done on target task',
         \ '  :LanToggleProgress         Toggle progress flag 🚩',
         \ '  :LanToggleWaiting          Toggle waiting flag ⌛',
