@@ -36,6 +36,7 @@ and add quick entries.
     Open weekly review report in a scratch buffer.
     Default stale_days is 7.
     Add "!" to include details such as source line number.
+    Uses unsaved note-buffer changes when available.
 
 :LanToggleDone
 :LanToggleProgress
@@ -77,7 +78,7 @@ Example: >
 LanReview categories:
 - Overdue
 - DueThisWeek
-- HighPriorityStale
-- WaitingStale
+- HighPriorityStale (based on task continuity days)
+- WaitingStale (based on task continuity days)
 
 vim:tw=78:ts=8:noet:ft=help:norl:

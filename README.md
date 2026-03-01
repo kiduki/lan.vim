@@ -49,6 +49,7 @@ augroup END
   Vimヘルプを表示（`lan.vim` 指定でのみ開く）。
 - `:LanReview[!] [stale_days]`
   週次レビューを scratch バッファに表示。`stale_days` の既定は `7`。`!` 指定時は詳細行（行番号）を表示。
+  可能ならノートバッファの未保存変更も反映して集計。
 - `:LanToggleDone`  
   カーソル位置のタスクを完了/未完了に切替（階層にも反映）。
 - `:LanToggleProgress`  
@@ -88,8 +89,8 @@ augroup END
 ### LanReview の判定
 - `Overdue`: 期限日が今日より前の未完了タスク。
 - `DueThisWeek`: 今日から6日後までに期限がある未完了タスク。
-- `HighPriorityStale`: `p1/p2` かつ `🚩` なしで `stale_days` 以上経過した未完了タスク。
-- `WaitingStale`: `⌛` で `stale_days` 以上経過した未完了タスク。
+- `HighPriorityStale`: 同一タスク継続日数が `stale_days` 以上で、`p1/p2` かつ `🚩` なしの未完了タスク。
+- `WaitingStale`: 同一タスク継続日数が `stale_days` 以上で、`⌛` の未完了タスク。
 
 ----
 

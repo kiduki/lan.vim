@@ -17,6 +17,120 @@ function! s:days_between(from_ymd, to_ymd) abort
   return float2nr((l:to_ts - l:from_ts) / 86400.0)
 endfunction
 
+function! s:is_valid_ymd(date_str) abort
+  return a:date_str =~# '^\d\{4}-\d\{2}-\d\{2}$'
+endfunction
+
+function! s:task_identity(task) abort
+  let l:labels = sort(copy(get(a:task, 'labels', [])))
+  return get(a:task, 'text', '')
+        \ . '|' . join(l:labels, ',')
+        \ . '|p' . get(a:task, 'priority', 0)
+        \ . '|due:' . get(a:task, 'due', '')
+endfunction
+
+function! s:compare_tasks(a, b) abort
+  let l:ad = get(a:a, 'source_date', '')
+  let l:bd = get(a:b, 'source_date', '')
+  if l:ad !=# l:bd
+    return (l:ad <# l:bd) ? -1 : 1
+  endif
+
+  let l:al = get(a:a, 'lnum', 0)
+  let l:bl = get(a:b, 'lnum', 0)
+  if l:al == l:bl
+    return 0
+  endif
+  return (l:al < l:bl) ? -1 : 1
+endfunction
+
+function! s:collect_active_tasks(tasks) abort
+  let l:ordered = sort(copy(a:tasks), function('s:compare_tasks'))
+  let l:state = {}
+  let l:key_order = []
+
+  for l:task in l:ordered
+    let l:key = s:task_identity(l:task)
+    if !has_key(l:state, l:key)
+      let l:state[l:key] = {
+            \ 'is_open': 0,
+            \ 'open_start': '',
+            \ 'latest': {}
+            \ }
+      call add(l:key_order, l:key)
+    endif
+
+    if get(l:task, 'done', 0)
+      let l:state[l:key].is_open = 0
+      let l:state[l:key].open_start = ''
+      let l:state[l:key].latest = copy(l:task)
+      continue
+    endif
+
+    let l:src = get(l:task, 'source_date', '')
+    if l:state[l:key].open_start ==# '' && s:is_valid_ymd(l:src)
+      let l:state[l:key].open_start = l:src
+    endif
+
+    let l:state[l:key].is_open = 1
+    let l:state[l:key].latest = copy(l:task)
+  endfor
+
+  let l:out = []
+  for l:key in l:key_order
+    if !get(l:state[l:key], 'is_open', 0)
+      continue
+    endif
+
+    let l:task = copy(l:state[l:key].latest)
+    if get(l:state[l:key], 'open_start', '') !=# ''
+      let l:task.first_seen_date = l:state[l:key].open_start
+    else
+      let l:task.first_seen_date = get(l:task, 'source_date', '')
+    endif
+    call add(l:out, l:task)
+  endfor
+  return l:out
+endfunction
+
+function! s:categorize(tasks, stale_days) abort
+  let l:cats = s:empty_categories()
+  let l:today = strftime('%Y-%m-%d')
+  let l:week_end = strftime('%Y-%m-%d', localtime() + (6 * 86400))
+  let l:active_tasks = s:collect_active_tasks(a:tasks)
+
+  for l:task in l:active_tasks
+    let l:due = get(l:task, 'due', '')
+    if l:due !=# ''
+      if l:due <# l:today
+        call add(l:cats.overdue, l:task)
+      elseif l:due <=# l:week_end
+        call add(l:cats.due_week, l:task)
+      endif
+    endif
+
+    let l:age_days = -1
+    let l:source_date = get(l:task, 'first_seen_date', get(l:task, 'source_date', ''))
+    if l:source_date !=# ''
+      let l:age_days = s:days_between(l:source_date, l:today)
+    endif
+
+    if l:age_days >= a:stale_days
+      if get(l:task, 'priority', 0) <= 2
+            \ && get(l:task, 'priority', 0) > 0
+            \ && !get(l:task, 'progress', 0)
+        call add(l:cats.priority_stale, l:task)
+      endif
+
+      if get(l:task, 'waiting', 0)
+        call add(l:cats.waiting_stale, l:task)
+      endif
+    endif
+  endfor
+
+  return l:cats
+endfunction
+
 function! s:collect_tasks(lines) abort
   let l:tasks = []
   let l:current_date = ''
@@ -52,47 +166,6 @@ function! s:empty_categories() abort
         \ 'priority_stale': [],
         \ 'waiting_stale': []
         \ }
-endfunction
-
-function! s:categorize(tasks, stale_days) abort
-  let l:cats = s:empty_categories()
-  let l:today = strftime('%Y-%m-%d')
-  let l:week_end = strftime('%Y-%m-%d', localtime() + (6 * 86400))
-
-  for l:task in a:tasks
-    if get(l:task, 'done', 0)
-      continue
-    endif
-
-    let l:due = get(l:task, 'due', '')
-    if l:due !=# ''
-      if l:due <# l:today
-        call add(l:cats.overdue, l:task)
-      elseif l:due <=# l:week_end
-        call add(l:cats.due_week, l:task)
-      endif
-    endif
-
-    let l:age_days = -1
-    let l:source_date = get(l:task, 'source_date', '')
-    if l:source_date !=# ''
-      let l:age_days = s:days_between(l:source_date, l:today)
-    endif
-
-    if l:age_days >= a:stale_days
-      if get(l:task, 'priority', 0) <= 2
-            \ && get(l:task, 'priority', 0) > 0
-            \ && !get(l:task, 'progress', 0)
-        call add(l:cats.priority_stale, l:task)
-      endif
-
-      if get(l:task, 'waiting', 0)
-        call add(l:cats.waiting_stale, l:task)
-      endif
-    endif
-  endfor
-
-  return l:cats
 endfunction
 
 function! s:task_line(task, detailed) abort
@@ -165,7 +238,12 @@ function! lan#review#run(qargs, bang) abort
     return
   endif
 
-  let l:lines = readfile(l:path)
+  let l:bn = bufnr(l:path)
+  if l:bn > 0 && getbufvar(l:bn, '&modified')
+    let l:lines = getbufline(l:bn, 1, '$')
+  else
+    let l:lines = readfile(l:path)
+  endif
   let l:tasks = s:collect_tasks(l:lines)
   let l:cats = s:categorize(l:tasks, l:stale_days)
 

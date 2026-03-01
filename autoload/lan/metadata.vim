@@ -63,6 +63,9 @@ function! lan#metadata#parse_task_line(line) abort
       let l:candidate = strpart(l:token, 4)
       if s:is_valid_date_ymd(l:candidate)
         let l:out.due = l:candidate
+      else
+        " Keep invalid due token in task text so users can fix it manually.
+        call add(l:body_tokens, l:token)
       endif
       continue
     endif

@@ -5,11 +5,16 @@ execute 'set runtimepath^=' . fnameescape(s:root)
 execute 'runtime plugin/lan.vim'
 
 function! s:fail(msg) abort
-  call delete(s:root . '/doc/tags')
+  if exists('s:orig_tags')
+    call writefile(s:orig_tags, s:root . '/doc/tags')
+  else
+    call delete(s:root . '/doc/tags')
+  endif
   echoerr a:msg
   cquit 1
 endfunction
 
+let s:orig_tags = filereadable(s:root . '/doc/tags') ? readfile(s:root . '/doc/tags') : []
 call delete(s:root . '/doc/tags')
 call lan#setup({})
 
@@ -27,5 +32,9 @@ if expand('%:t') !=# 'lan.txt'
   call s:fail('lan regression: :help lan.vim opened ' . expand('%:t') . ' (expected lan.txt)')
 endif
 
-call delete(s:root . '/doc/tags')
+if !empty(s:orig_tags)
+  call writefile(s:orig_tags, s:root . '/doc/tags')
+else
+  call delete(s:root . '/doc/tags')
+endif
 cquit 0
