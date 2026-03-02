@@ -1,0 +1,55 @@
+- id: lanvim-add-auto-insert-position-001
+  title: "add_autoのタスク追加位置ロジックを同一セクション内の優先規則に修正"
+  task_kind: code
+  scope_paths:
+    - autoload/
+    - plugin/
+    - tests/
+  acceptance:
+    - "同一セクション内で、カーソル行以降の次タスク直前に挿入される"
+    - "次タスクがない場合、現カーソル行のタスク直下に挿入される"
+    - "それでも見つからない場合、上方向の最寄りタスク直下に挿入される"
+    - "タスクがない場合、セクション開始位置の直下に挿入される"
+  base_branch: main
+  status: merged
+  branch: task/lanvim-add-auto-insert-position-001
+  workdir: /tmp/lan-orchestrator/lanvim-add-auto-insert-position-001
+  overlap_detected: false
+  integration_gate_required: false
+  shared_change_risk: low
+- id: lanvim-carryover-separator-target-002
+  title: "翌日繰り越しの転記対象に区切り文字---を追加し直前空行を補完"
+  task_kind: code
+  scope_paths:
+    - autoload/
+    - plugin/
+    - tests/
+  acceptance:
+    - "翌日に繰り越す転記対象に区切り文字---が含まれる"
+    - "区切り文字---の1行上が空行でない場合は空行が追加される"
+    - "既存の繰り越しロジックと整合し、不要な重複空行は発生しない"
+  base_branch: main
+  status: merged
+  branch: task/lanvim-carryover-separator-target-002
+  workdir: /tmp/lan-orchestrator/lanvim-carryover-separator-target-002
+  overlap_detected: false
+  integration_gate_required: false
+  shared_change_risk: low
+- id: lanvim-task-description-lines-003
+  title: "タスク直後の非タスク連続行を説明として一体操作する"
+  task_kind: code
+  scope_paths:
+    - autoload/
+    - plugin/
+    - tests/
+  acceptance:
+    - "タスク行の以降に1行以上続く非タスク行を、そのタスクの説明として認識する"
+    - "ステータス変更時に説明行も同一タスクの一部として操作対象になる"
+    - "翌日繰り越し時に説明行も同一タスクの一部として転記対象になる"
+  base_branch: main
+  status: merged
+  branch: task/lanvim-task-description-lines-003
+  workdir: /tmp/lan-orchestrator/lanvim-task-description-lines-003
+  overlap_detected: false
+  integration_gate_required: false
+  shared_change_risk: low
