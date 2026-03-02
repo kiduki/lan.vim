@@ -47,7 +47,7 @@ endfunction
 
 function! s:is_section_break_lnum(lnum) abort
   let l:line = getline(a:lnum)
-  return l:line ==# '' || l:line =~# '^###\s' || l:line =~# '^##\s' || l:line =~# lan#core#rx_dash()
+  return l:line ==# '' || l:line =~# '^###\s' || l:line =~# '^##\s'
 endfunction
 
 function! s:find_target_task_lnum_from_cursor() abort
