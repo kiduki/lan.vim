@@ -1,6 +1,6 @@
 *Lan* *lan.vim*
 
-lan.vim                                                Last change: 2026-03-01
+lan.vim                                                Last change: 2026-03-02
 
 ===============================================================================
 CONTENTS                                                    *lan-contents*
@@ -8,7 +8,9 @@ CONTENTS                                                    *lan-contents*
 1. Overview..........................................................|lan-overview|
 2. Commands..........................................................|lan-commands|
 3. Setup.............................................................|lan-setup|
-4. Metadata.......................................................|lan-metadata|
+4. Note Mappings................................................|lan-note-mappings|
+5. Metadata.......................................................|lan-metadata|
+6. Review and Stats.........................................|lan-review-stats|
 
 ===============================================================================
 1. Overview                                                       *lan-overview*
@@ -46,12 +48,21 @@ and add quick entries.
     Uses unsaved note-buffer changes when available.
 
 :LanToggleDone
+    Toggle done/undone for the task under cursor.
+    Reflects the state to child tasks.
+
 :LanToggleProgress
+    Toggle progress flag "🚩" for the task under cursor.
+    Does not apply to done tasks.
+
 :LanToggleWaiting
-    Task state toggles for current note buffer.
+    Toggle waiting flag "⌛" for the task under cursor.
+    Does not apply to done tasks.
 
 ===============================================================================
 3. Setup                                                             *lan-setup*
+
+Only |lan#setup()| is supported for configuration.
 
 Example: >
   augroup lan_user_setup
@@ -78,8 +89,42 @@ Example: >
   augroup END
 <
 
+Use |:help lan.vim| to open this help page.
+
 ===============================================================================
-4. Metadata                                                      *lan-metadata*
+4. Note Mappings                                             *lan-note-mappings*
+
+Mappings from setup().note_maps are active only in the note buffer.
+
+add_block (default: <Leader>lnb)
+    Insert "- [ ] " in today's Blocking Tasks and enter Insert mode.
+
+add_queue (default: <Leader>lnq)
+    Insert "- [ ] " in today's Queue and enter Insert mode.
+
+add_note (default: <Leader>lnn)
+    Insert "- " in today's Notes and enter Insert mode.
+
+add_auto (default: <Leader>lna)
+    Works only at end-of-line (including on last character).
+    Inserts into current section (Blocking / Queue / Notes).
+    If cursor is not at end-of-line, behaves as regular typing.
+
+toggle_done (default: <Leader>lnx)
+    Same behavior as |:LanToggleDone|.
+
+toggle_progress (default: <Leader>lnp)
+    Same behavior as |:LanToggleProgress|.
+
+toggle_waiting (default: <Leader>lnw)
+    Same behavior as |:LanToggleWaiting|.
+
+toggle_fold (default: <Leader>lnz)
+    Toggle fold for completed tasks (including deeper indentation).
+    Shows folded task count when fold is enabled.
+
+===============================================================================
+5. Metadata                                                      *lan-metadata*
 
 Task lines may include metadata tokens:
 
@@ -88,11 +133,23 @@ Task lines may include metadata tokens:
 - p1 / p2 / p3 / p4
 - due:YYYY-MM-DD
 
+Rules:
+- Multiple @label and +assignee tokens are allowed.
+- Duplicates of labels/assignees are removed internally.
+- For p1..p4 and due:YYYY-MM-DD, the last token wins.
+- Unknown tokens stay in task text.
+
 Metadata highlight colors are configurable via:
 - setup().meta_colors.label
 - setup().meta_colors.assignee
 - setup().meta_colors.priority
 - setup().meta_colors.due
+
+Default colors:
+- label: ctermfg=81, guifg=#61afef
+- assignee: ctermfg=114, guifg=#98c379
+- priority: ctermfg=220, guifg=#e5c07b
+- due: ctermfg=203, guifg=#e06c75
 
 Invalid due tokens (e.g. due:2026-02-31) are kept in task text.
 
@@ -100,14 +157,29 @@ Example: >
   - [ ] Send proposal @client +yamada p1 due:2026-03-03
 <
 
+===============================================================================
+6. Review and Stats                                         *lan-review-stats*
+
 LanReview categories:
 - Overdue
+    due date is before today and task is not done.
 - DueThisWeek
-- HighPriorityStale (based on task continuity days)
-- WaitingStale (based on task continuity days)
+    due date is from today through six days ahead and task is not done.
+- HighPriorityStale
+    continuity days >= stale_days, priority is p1/p2,
+    no progress flag "🚩", and task is not done.
+- WaitingStale
+    continuity days >= stale_days,
+    waiting flag "⌛" is present, and task is not done.
 
 Task continuity identity for stale calculation:
-- Uses task text + labels + assignees
-- Ignores priority and due changes
+- Uses task text + labels + assignees.
+- Ignores priority and due changes.
+
+LanStats counters:
+- week_done: tasks completed this week
+- today_done: tasks completed today
+- added: tasks added this week
+- remaining: unfinished tasks in this week range
 
 vim:tw=78:ts=8:noet:ft=help:norl:
