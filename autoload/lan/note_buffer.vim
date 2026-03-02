@@ -109,6 +109,13 @@ function! s:extract_unfinished_buf(prev_date_lnum, header_text) abort
     let l:i += 1
   endwhile
 
+  if !empty(l:out)
+    if l:out[-1] !=# ''
+      call add(l:out, '')
+    endif
+    call add(l:out, '---')
+  endif
+
   return l:out
 endfunction
 
