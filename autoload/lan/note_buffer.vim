@@ -149,6 +149,46 @@ function! s:append_lines_under_buf(today_lnum, header_text, lines) abort
   return l:ins + len(a:lines)
 endfunction
 
+function! s:section_body_end_buf(today_lnum, header_lnum) abort
+  let l:today_end = lan#note_buffer#section_end(a:today_lnum)
+  for l:i in range(a:header_lnum + 1, l:today_end)
+    if lan#core#is_header_line_str(getline(l:i))
+      return l:i - 1
+    endif
+  endfor
+  return l:today_end
+endfunction
+
+function! s:auto_insert_anchor_buf(today_lnum, header_lnum, cursor_lnum) abort
+  let l:sec_body_end = s:section_body_end_buf(a:today_lnum, a:header_lnum)
+  let l:scan_from = max([a:cursor_lnum + 1, a:header_lnum + 1])
+
+  if l:scan_from <= l:sec_body_end
+    for l:i in range(l:scan_from, l:sec_body_end)
+      if getline(l:i) =~# lan#core#rx_task()
+        return l:i - 1
+      endif
+    endfor
+  endif
+
+  if a:cursor_lnum >= a:header_lnum + 1
+        \ && a:cursor_lnum <= l:sec_body_end
+        \ && getline(a:cursor_lnum) =~# lan#core#rx_task()
+    return a:cursor_lnum
+  endif
+
+  let l:up_from = min([a:cursor_lnum, l:sec_body_end])
+  if l:up_from >= a:header_lnum + 1
+    for l:i in range(l:up_from, a:header_lnum + 1, -1)
+      if getline(l:i) =~# lan#core#rx_task()
+        return l:i
+      endif
+    endfor
+  endif
+
+  return a:header_lnum
+endfunction
+
 function! s:insert_today_template_buf() abort
   let l:tmpl = lan#core#today_template_lines()
   if line('$') == 1 && getline(1) ==# ''
@@ -241,6 +281,18 @@ function! s:find_section_kind_from_cursor(date_lnum) abort
   return ''
 endfunction
 
+function! s:find_section_header_lnum_from_cursor(date_lnum) abort
+  for l:i in range(line('.'), a:date_lnum + 1, -1)
+    let l:line = getline(l:i)
+    if l:line ==# lan#core#hdr_block()
+          \ || l:line ==# lan#core#hdr_queue()
+          \ || l:line ==# lan#core#hdr_notes()
+      return l:i
+    endif
+  endfor
+  return 0
+endfunction
+
 function! lan#note_buffer#map_add_auto_keys() abort
   let l:key_notation = substitute(lan#config#map('add_auto'), '<\([^>]\+\)>', '\= "\\<" . toupper(submatch(1)) . ">"', 'g')
   return eval('"' . escape(l:key_notation, '"') . '"')
@@ -274,15 +326,19 @@ function! lan#note_buffer#insert_auto() abort
       call lan#core#die('Section header not found above cursor.')
     endif
 
-    let [l:hdr, l:seed] = s:header_and_seed_line(l:kind)
-
-    let l:inserted = s:append_lines_under_buf(l:date_lnum, l:hdr, [l:seed])
-    if l:inserted == 0
-      call cursor(line('$'), 1)
-      startinsert!
-      return
+    let l:header_lnum = s:find_section_header_lnum_from_cursor(l:date_lnum)
+    if l:header_lnum == 0
+      call lan#core#die('Section header not found above cursor.')
     endif
-    call lan#core#startinsert_for_new_item(l:inserted)
+
+    let [l:hdr, l:seed] = s:header_and_seed_line(l:kind)
+    if getline(l:header_lnum) !=# l:hdr
+      call lan#core#die('Section header mismatch.')
+    endif
+
+    let l:anchor = s:auto_insert_anchor_buf(l:date_lnum, l:header_lnum, line('.'))
+    call append(l:anchor, [l:seed])
+    call lan#core#startinsert_for_new_item(l:anchor + 1)
   catch /^lan_error$/
   endtry
 endfunction
