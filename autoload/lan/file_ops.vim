@@ -90,6 +90,13 @@ function! s:extract_unfinished_list(lines, prev_date_idx, header_text) abort
     endif
   endfor
 
+  if !empty(l:out)
+    if l:out[-1] !=# ''
+      call add(l:out, '')
+    endif
+    call add(l:out, '---')
+  endif
+
   return l:out
 endfunction
 
