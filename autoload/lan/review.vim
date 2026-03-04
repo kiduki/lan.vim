@@ -10,6 +10,16 @@ function! s:days_between(from_ymd, to_ymd) abort
   return float2nr((l:to_ts - l:from_ts) / 86400.0)
 endfunction
 
+function! s:due_date_ymd(due_value) abort
+  if a:due_value =~# '^\d\{4}-\d\{2}-\d\{2}$'
+    return a:due_value
+  endif
+  if a:due_value =~# '^\d\{4}-\d\{2}-\d\{2}T\d\{2}:\d\{2}$'
+    return strpart(a:due_value, 0, 10)
+  endif
+  return ''
+endfunction
+
 function! s:categorize(tasks, stale_days) abort
   let l:cats = s:empty_categories()
   let l:today = strftime('%Y-%m-%d')
@@ -17,11 +27,11 @@ function! s:categorize(tasks, stale_days) abort
   let l:active_tasks = lan#task_scan#collect_active_tasks(a:tasks)
 
   for l:task in l:active_tasks
-    let l:due = get(l:task, 'due', '')
-    if l:due !=# ''
-      if l:due <# l:today
+    let l:due_date = s:due_date_ymd(get(l:task, 'due', ''))
+    if l:due_date !=# ''
+      if l:due_date <# l:today
         call add(l:cats.overdue, l:task)
-      elseif l:due <=# l:week_end
+      elseif l:due_date <=# l:week_end
         call add(l:cats.due_week, l:task)
       endif
     endif

@@ -74,6 +74,7 @@ Example: >
           \   'assignee': {'ctermfg': '114', 'guifg': '#98c379'},
           \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
           \   'due': {'ctermfg': '203', 'guifg': '#e06c75'},
+          \   'deadline': {'ctermfg': '197', 'guifg': '#ff4d73'},
           \ },
           \ 'note_maps': {
           \   'add_block': '<Leader>lnb',
@@ -131,30 +132,37 @@ Task lines may include metadata tokens:
 - @label
 - +assignee (supports non-ASCII names such as +ななし)
 - p1 / p2 / p3 / p4
-- due:YYYY-MM-DD
+- due:YYYY-MM-DD or due:YYYY-MM-DDTHH:MM
+- deadline:YYYY-MM-DD or deadline:YYYY-MM-DDTHH:MM
 
 Rules:
 - Multiple @label and +assignee tokens are allowed.
 - Duplicates of labels/assignees are removed internally.
-- For p1..p4 and due:YYYY-MM-DD, the last token wins.
+- For p1..p4, due, and deadline, the last token wins.
 - Unknown tokens stay in task text.
+- due is for planned execution timing.
+- deadline is for hard finish-by date.
+- LanReview uses due for Overdue/DueThisWeek categories.
 
 Metadata highlight colors are configurable via:
 - setup().meta_colors.label
 - setup().meta_colors.assignee
 - setup().meta_colors.priority
 - setup().meta_colors.due
+- setup().meta_colors.deadline
 
 Default colors:
 - label: ctermfg=81, guifg=#61afef
 - assignee: ctermfg=114, guifg=#98c379
 - priority: ctermfg=220, guifg=#e5c07b
 - due: ctermfg=203, guifg=#e06c75
+- deadline: ctermfg=197, guifg=#ff4d73
 
-Invalid due tokens (e.g. due:2026-02-31) are kept in task text.
+Invalid due/deadline tokens (e.g. due:2026-02-31 or deadline:2026-13-40)
+are kept in task text.
 
 Example: >
-  - [ ] Send proposal @client +yamada p1 due:2026-03-03
+  - [ ] Send proposal @client +yamada p1 due:2026-03-03T10:00 deadline:2026-03-05
 <
 
 ===============================================================================

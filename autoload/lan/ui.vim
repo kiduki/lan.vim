@@ -105,16 +105,20 @@ function! s:ensure_meta_syntax() abort
   let l:assignee = lan#config#meta_color('assignee')
   let l:priority = lan#config#meta_color('priority')
   let l:due = lan#config#meta_color('due')
+  let l:deadline = lan#config#meta_color('deadline')
 
   highlight default lanParenEmphasis ctermfg=216 guifg=#d19a66 cterm=NONE gui=NONE
   execute 'highlight default lanLabelMeta ctermfg=' . l:label.ctermfg . ' guifg=' . l:label.guifg . ' cterm=NONE gui=NONE'
   execute 'highlight default lanAssigneeMeta ctermfg=' . l:assignee.ctermfg . ' guifg=' . l:assignee.guifg . ' cterm=NONE gui=NONE'
   execute 'highlight default lanPriorityMeta ctermfg=' . l:priority.ctermfg . ' guifg=' . l:priority.guifg . ' cterm=NONE gui=NONE'
   execute 'highlight default lanDueMeta ctermfg=' . l:due.ctermfg . ' guifg=' . l:due.guifg . ' cterm=NONE gui=NONE'
+  execute 'highlight default lanDeadlineMeta ctermfg=' . l:deadline.ctermfg . ' guifg=' . l:deadline.guifg . ' cterm=NONE gui=NONE'
 
   let b:lan_paren_matchid = matchadd('lanParenEmphasis', '\%(^##\s.*\)\@<!\v\(\zs[^)]*\ze\)', 1000)
   let b:lan_label_matchid = matchadd('lanLabelMeta', '@\%([0-9A-Za-z_]\|[^ -~[:space:]]\)\%([0-9A-Za-z_-]\|[^ -~[:space:]]\)*', 1001)
   let b:lan_assignee_matchid = matchadd('lanAssigneeMeta', '+\%([0-9A-Za-z_]\|[^ -~[:space:]]\)\%([0-9A-Za-z_-]\|[^ -~[:space:]]\)*', 1001)
-  let b:lan_priority_matchid = matchadd('lanPriorityMeta', 'p[1-4]\>', 1001)
-  let b:lan_due_matchid = matchadd('lanDueMeta', 'due:\d\{4}-\d\{2}-\d\{2}\>', 1001)
+  let b:lan_priority_matchid = matchadd('lanPriorityMeta', '\<p[1-4]\>', 1001)
+  let l:dt_pat = '\d\{4}-\d\{2}-\d\{2}\%(\%(T\d\{2}:\d\{2}\)\=\)\>'
+  let b:lan_due_matchid = matchadd('lanDueMeta', 'due:' . l:dt_pat, 1001)
+  let b:lan_deadline_matchid = matchadd('lanDeadlineMeta', 'deadline:' . l:dt_pat, 1001)
 endfunction

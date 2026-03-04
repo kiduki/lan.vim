@@ -19,6 +19,7 @@ augroup lan_user_setup
         \   'assignee': {'ctermfg': '114', 'guifg': '#98c379'},
         \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
         \   'due': {'ctermfg': '203', 'guifg': '#e06c75'},
+        \   'deadline': {'ctermfg': '197', 'guifg': '#ff4d73'},
         \ },
         \ 'note_maps': {
         \   'add_block': '<Leader>lnb',

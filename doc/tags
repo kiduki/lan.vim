@@ -2,6 +2,8 @@ Lan	lan.txt	/*Lan*
 lan-commands	lan.txt	/*lan-commands*
 lan-contents	lan.txt	/*lan-contents*
 lan-metadata	lan.txt	/*lan-metadata*
+lan-note-mappings	lan.txt	/*lan-note-mappings*
 lan-overview	lan.txt	/*lan-overview*
+lan-review-stats	lan.txt	/*lan-review-stats*
 lan-setup	lan.txt	/*lan-setup*
 lan.vim	lan.txt	/*lan.vim*

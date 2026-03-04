@@ -146,7 +146,7 @@ function! lan#core#help() abort
         \ '  :LanToggleProgress         Toggle progress flag 🚩',
         \ '  :LanToggleWaiting          Toggle waiting flag ⌛',
         \ '  :help lan.vim             Show Vim help for lan.vim',
-        \ '  setup(): meta_colors(label/assignee/priority/due) is supported',
+        \ '  setup(): meta_colors(label/assignee/priority/due/deadline) is supported',
         \ '[lan] vimrc sample (copy/paste)',
         \ '  augroup lan_user_setup',
         \ '    autocmd!',
@@ -177,7 +177,8 @@ function! lan#core#help() abort
         \ '  label=' . string(lan#config#meta_color('label')),
         \ '  assignee=' . string(lan#config#meta_color('assignee')),
         \ '  priority=' . string(lan#config#meta_color('priority')),
-        \ '  due=' . string(lan#config#meta_color('due'))
+        \ '  due=' . string(lan#config#meta_color('due')),
+        \ '  deadline=' . string(lan#config#meta_color('deadline'))
         \ ]
   for l:line in l:lines
     echom l:line

@@ -33,9 +33,9 @@ call writefile([
       \ '',
       \ '### 🔥 Blocking Tasks',
       \ '',
-      \ '- [ ] overdue_task @work +alice p1 due:' . s:yesterday,
-      \ '- [ ] due_this_week @ops +bob p3 due:' . s:in_two_days,
-      \ '- [ ] dup_title @same +carol p1 due:' . s:yesterday,
+      \ '- [ ] overdue_task @work +alice p1 due:' . s:yesterday . 'T09:00 deadline:' . s:today,
+      \ '- [ ] due_this_week @ops +bob p3 due:' . s:in_two_days . 'T18:30',
+      \ '- [ ] dup_title @same +carol p1 due:' . s:yesterday . ' deadline:' . s:in_two_days . 'T23:59',
       \ '- [ ] dup_title @same +carol p3 due:' . s:in_two_days,
       \ '- [x] done_now_task @delta p1',
       \ '- [ ] invalid_due_should_remain due:2026-02-31',
@@ -77,7 +77,7 @@ if expand('%:t') !=# '[lan-review]'
   call s:fail('review runtime: expected [lan-review], got ' . expand('%:t'))
 endif
 
-if !exists('b:lan_label_matchid') || !exists('b:lan_assignee_matchid') || !exists('b:lan_priority_matchid') || !exists('b:lan_due_matchid')
+if !exists('b:lan_label_matchid') || !exists('b:lan_assignee_matchid') || !exists('b:lan_priority_matchid') || !exists('b:lan_due_matchid') || !exists('b:lan_deadline_matchid')
   call s:fail('review runtime: metadata highlight match ids are missing')
 endif
 
@@ -85,7 +85,8 @@ let s:label_pat = s:match_pattern('lanLabelMeta')
 let s:assignee_pat = s:match_pattern('lanAssigneeMeta')
 let s:priority_pat = s:match_pattern('lanPriorityMeta')
 let s:due_pat = s:match_pattern('lanDueMeta')
-if s:label_pat ==# '' || s:assignee_pat ==# '' || s:priority_pat ==# '' || s:due_pat ==# ''
+let s:deadline_pat = s:match_pattern('lanDeadlineMeta')
+if s:label_pat ==# '' || s:assignee_pat ==# '' || s:priority_pat ==# '' || s:due_pat ==# '' || s:deadline_pat ==# ''
   call s:fail('review runtime: match patterns are missing')
 endif
 
@@ -98,8 +99,11 @@ endif
 if matchstr('p3', s:priority_pat) !=# 'p3'
   call s:fail('review runtime: priority pattern did not match pN')
 endif
-if matchstr('due:' . s:in_two_days, s:due_pat) !=# 'due:' . s:in_two_days
+if matchstr('due:' . s:in_two_days . 'T18:30', s:due_pat) !=# 'due:' . s:in_two_days . 'T18:30'
   call s:fail('review runtime: due pattern did not match due date')
+endif
+if matchstr('deadline:' . s:in_two_days . 'T23:59', s:deadline_pat) !=# 'deadline:' . s:in_two_days . 'T23:59'
+  call s:fail('review runtime: deadline pattern did not match deadline date')
 endif
 
 let s:content = join(getline(1, '$'), "\n")
@@ -140,6 +144,16 @@ endif
 let s:parsed = lan#metadata#parse_task_line('- [ ] invalid_due_should_remain due:2026-02-31')
 if get(s:parsed, 'text', '') !~# 'due:2026-02-31'
   call s:fail('review runtime: invalid due token should remain in parsed task text')
+endif
+
+let s:parsed_deadline = lan#metadata#parse_task_line('- [ ] plan_task due:2026-03-04T08:00 deadline:2026-03-05')
+if get(s:parsed_deadline, 'due', '') !=# '2026-03-04T08:00' || get(s:parsed_deadline, 'deadline', '') !=# '2026-03-05'
+  call s:fail('review runtime: due/deadline parse failed')
+endif
+
+let s:invalid_deadline = lan#metadata#parse_task_line('- [ ] keep_invalid deadline:2026-99-99')
+if get(s:invalid_deadline, 'text', '') !~# 'deadline:2026-99-99'
+  call s:fail('review runtime: invalid deadline token should remain in parsed task text')
 endif
 
 let s:assignee_parsed = lan#metadata#parse_task_line('- [ ] assign_task +alice +alice')

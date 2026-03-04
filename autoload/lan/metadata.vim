@@ -1,5 +1,5 @@
 " autoload/lan/metadata.vim
-" Task metadata parser for labels / assignees / priority / due date.
+" Task metadata parser for labels / assignees / priority / due/deadline.
 
 function! s:is_valid_date_ymd(date_str) abort
   if a:date_str !~# '^\d\{4}-\d\{2}-\d\{2}$'
@@ -10,6 +10,20 @@ function! s:is_valid_date_ymd(date_str) abort
     return 0
   endif
   return strftime('%Y-%m-%d', l:ts) ==# a:date_str
+endfunction
+
+function! s:is_valid_datetime(value) abort
+  if a:value =~# '^\d\{4}-\d\{2}-\d\{2}$'
+    return s:is_valid_date_ymd(a:value)
+  endif
+  if a:value !~# '^\d\{4}-\d\{2}-\d\{2}T\d\{2}:\d\{2}$'
+    return 0
+  endif
+  let l:ts = strptime('%Y-%m-%dT%H:%M', a:value)
+  if l:ts < 0
+    return 0
+  endif
+  return strftime('%Y-%m-%dT%H:%M', l:ts) ==# a:value
 endfunction
 
 function! s:add_unique(list, value) abort
@@ -27,6 +41,7 @@ function! lan#metadata#parse_task_line(line) abort
         \ 'assignees': [],
         \ 'priority': 0,
         \ 'due': '',
+        \ 'deadline': '',
         \ 'progress': 0,
         \ 'waiting': 0
         \ }
@@ -64,13 +79,18 @@ function! lan#metadata#parse_task_line(line) abort
       continue
     endif
 
-    if l:token =~# '^due:\d\{4}-\d\{2}-\d\{2}$'
-      let l:candidate = strpart(l:token, 4)
-      if s:is_valid_date_ymd(l:candidate)
+    if l:token =~# '^\%(due\|deadline\):'
+      let l:sep = stridx(l:token, ':')
+      let l:key = strpart(l:token, 0, l:sep)
+      let l:candidate = strpart(l:token, l:sep + 1)
+      if !s:is_valid_datetime(l:candidate)
+        call add(l:body_tokens, l:token)
+        continue
+      endif
+      if l:key ==# 'due'
         let l:out.due = l:candidate
       else
-        " Keep invalid due token in task text so users can fix it manually.
-        call add(l:body_tokens, l:token)
+        let l:out.deadline = l:candidate
       endif
       continue
     endif
@@ -95,6 +115,9 @@ function! lan#metadata#format_tokens(task) abort
   endif
   if get(a:task, 'due', '') !=# ''
     call add(l:tokens, 'due:' . a:task.due)
+  endif
+  if get(a:task, 'deadline', '') !=# ''
+    call add(l:tokens, 'deadline:' . a:task.deadline)
   endif
   return join(l:tokens, ' ')
 endfunction

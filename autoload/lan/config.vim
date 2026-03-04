@@ -7,7 +7,8 @@ let s:config = {
       \   'label': {'ctermfg': '81',  'guifg': '#61afef'},
       \   'assignee': {'ctermfg': '114', 'guifg': '#98c379'},
       \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
-      \   'due': {'ctermfg': '203', 'guifg': '#e06c75'}
+      \   'due': {'ctermfg': '203', 'guifg': '#e06c75'},
+      \   'deadline': {'ctermfg': '197', 'guifg': '#ff4d73'}
       \ },
       \ 'note_maps': {
       \   'add_block': '<Leader>lanb',
@@ -28,7 +29,8 @@ function! lan#config#init_defaults() abort
         \   'label': {'ctermfg': '81',  'guifg': '#61afef'},
         \   'assignee': {'ctermfg': '114', 'guifg': '#98c379'},
         \   'priority': {'ctermfg': '220', 'guifg': '#e5c07b'},
-        \   'due': {'ctermfg': '203', 'guifg': '#e06c75'}
+        \   'due': {'ctermfg': '203', 'guifg': '#e06c75'},
+        \   'deadline': {'ctermfg': '197', 'guifg': '#ff4d73'}
         \ },
         \ 'note_maps': {
         \   'add_block': '<Leader>lanb',
