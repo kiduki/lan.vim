@@ -88,6 +88,9 @@ Example: >
           \   'toggle_progress': '<Leader>lnp',
           \   'toggle_waiting': '<Leader>lnw',
           \   'toggle_fold': '<Leader>lnz',
+          \   'edit_insert': '<Leader>li',
+          \   'edit_append': '<Leader>la',
+          \   'edit_change': '<Leader>lc',
           \ },
           \ })
   augroup END
@@ -126,6 +129,15 @@ toggle_waiting (default: <Leader>lnw)
 toggle_fold (default: <Leader>lnz)
     Toggle fold for completed tasks (including deeper indentation).
     Shows folded task count when fold is enabled.
+
+edit_insert (default: <Leader>li)
+    On a task line, move to task text start and enter Insert mode.
+
+edit_append (default: <Leader>la)
+    On a task line, move to task text end and enter Insert mode.
+
+edit_change (default: <Leader>lc)
+    On a task line, clear task text (keep metadata) and enter Insert mode.
 
 ===============================================================================
 5. Metadata                                                      *lan-metadata*
