@@ -21,6 +21,7 @@ command! LanStats call lan#stats()
 command! LanToggleDone call lan#toggle_done()
 command! LanToggleProgress call lan#toggle_progress()
 command! LanToggleWaiting call lan#toggle_waiting()
+command! LanFoldUnstarted call lan#fold#fold_unstarted_open_tasks()
 
 " ---------------- mappings (note buffer only) ----------------
 augroup lan_note_maps

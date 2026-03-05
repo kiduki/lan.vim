@@ -59,6 +59,9 @@ and add quick entries.
     Toggle waiting flag "⌛" for the task under cursor.
     Does not apply to done tasks.
 
+:LanFoldUnstarted
+    Fold unfinished tasks that are neither progress ("🚩") nor waiting ("⌛").
+
 ===============================================================================
 3. Setup                                                             *lan-setup*
 
@@ -146,6 +149,8 @@ Rules:
 - In note buffer insert mode, typing `:` after `due` or `deadline`
   opens a date completion list (`YYYY-MM-DD`).
 - The first candidate is today. Use `<C-n>` for next and `<C-p>` for previous.
+- In note buffer insert mode, typing `@` or `+` opens completion list.
+- Candidates are collected from existing `@label` and `+assignee` tokens.
 
 Metadata highlight colors are configurable via:
 - setup().meta_colors.label
