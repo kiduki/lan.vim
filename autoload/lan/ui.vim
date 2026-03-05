@@ -63,6 +63,14 @@ function! s:maybe_define_note_maps() abort
         \ 'lan#ui#eval_add_auto_map()',
         \ 'add-auto')
   call s:maybe_define_note_map(
+        \ '@', 'i',
+        \ 'lan#ui#eval_meta_complete_map("@")',
+        \ 'meta-complete-label')
+  call s:maybe_define_note_map(
+        \ '+', 'i',
+        \ 'lan#ui#eval_meta_complete_map("+")',
+        \ 'meta-complete-assignee')
+  call s:maybe_define_note_map(
         \ lan#config#map('toggle_done'), 'n',
         \ ':call lan#task_toggle#done()<CR>',
         \ 'toggle-done')
@@ -85,6 +93,10 @@ function! lan#ui#eval_add_auto_map() abort
     return lan#note_buffer#map_add_auto_keys()
   endif
   return "\<C-o>:call lan#note_buffer#insert_auto()\<CR>"
+endfunction
+
+function! lan#ui#eval_meta_complete_map(char) abort
+  return lan#note_buffer#eval_meta_complete_map(a:char)
 endfunction
 
 function! s:maybe_define_note_syntax() abort
