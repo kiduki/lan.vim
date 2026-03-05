@@ -141,7 +141,7 @@ function! lan#core#help() abort
         \ '  :Lan                       Open/create today note',
         \ '  :Lanb {text} / :Lanq {text} / :Lann {text}',
         \ '  :LanReview[!] [stale_days] Weekly review (today-task scoped)',
-        \ '  :LanStats                  Weekly metrics (scan this week only)',
+        \ '  :LanStats                  Weekly metrics (remaining means today)',
         \ '  :LanToggleDone             Toggle done on target task',
         \ '  :LanToggleProgress         Toggle progress flag 🚩',
         \ '  :LanToggleWaiting          Toggle waiting flag ⌛',

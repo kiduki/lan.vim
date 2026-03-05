@@ -42,7 +42,7 @@ function! s:compute(tasks, today_ymd) abort
     let l:key = lan#task_scan#task_identity(l:task)
     let l:src = get(l:task, 'source_date', '')
     if !has_key(l:state, l:key)
-      let l:state[l:key] = {'is_open': 0, 'seen': 0}
+      let l:state[l:key] = {'is_open': 0, 'seen': 0, 'latest_source_date': ''}
     endif
 
     if !l:state[l:key].seen
@@ -51,6 +51,7 @@ function! s:compute(tasks, today_ymd) abort
         let l:out.added += 1
       endif
     endif
+    let l:state[l:key].latest_source_date = l:src
 
     if get(l:task, 'done', 0)
       if s:is_in_range(l:src, l:week_start, a:today_ymd)
@@ -68,6 +69,7 @@ function! s:compute(tasks, today_ymd) abort
 
   for l:key in keys(l:state)
     if get(l:state[l:key], 'is_open', 0)
+          \ && get(l:state[l:key], 'latest_source_date', '') ==# a:today_ymd
       let l:out.remaining += 1
     endif
   endfor

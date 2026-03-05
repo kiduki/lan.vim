@@ -42,6 +42,7 @@ call writefile([
       \ '### 🔥 Blocking Tasks',
       \ '',
       \ '- [ ] task_a',
+      \ '- [ ] task_e',
       \ '',
       \ '### 📥 Queue',
       \ '',
@@ -74,7 +75,7 @@ endif
 if s:out !~# 'today_done=2'
   call s:fail('stats runtime: today_done mismatch: ' . s:out)
 endif
-if s:out !~# 'added=4'
+if s:out !~# 'added=5'
   call s:fail('stats runtime: added mismatch: ' . s:out)
 endif
 if s:out !~# 'remaining=2'
