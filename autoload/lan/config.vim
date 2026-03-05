@@ -23,6 +23,9 @@ let s:config = {
       \   'edit_append': '<Leader>la',
       \   'edit_change': '<Leader>lc'
       \ }
+      \, 'meta_color_overrides': {
+      \   'label': 0
+      \ }
       \ }
 
 function! lan#config#init_defaults() abort
@@ -47,6 +50,9 @@ function! lan#config#init_defaults() abort
         \   'edit_insert': '<Leader>li',
         \   'edit_append': '<Leader>la',
         \   'edit_change': '<Leader>lc'
+        \ }
+        \, 'meta_color_overrides': {
+        \   'label': 0
         \ }
         \ }
 endfunction
@@ -88,9 +94,15 @@ function! lan#config#setup(opts) abort
       endif
       if has_key(l:spec, 'ctermfg')
         let s:config.meta_colors[l:key].ctermfg = string(l:spec.ctermfg)
+        if l:key ==# 'label'
+          let s:config.meta_color_overrides.label = 1
+        endif
       endif
       if has_key(l:spec, 'guifg')
         let s:config.meta_colors[l:key].guifg = string(l:spec.guifg)
+        if l:key ==# 'label'
+          let s:config.meta_color_overrides.label = 1
+        endif
       endif
     endfor
   endif
@@ -112,4 +124,8 @@ function! lan#config#meta_color(key) abort
     return {'ctermfg': 'NONE', 'guifg': 'NONE'}
   endif
   return copy(s:config.meta_colors[a:key])
+endfunction
+
+function! lan#config#is_label_color_fixed() abort
+  return get(get(s:config, 'meta_color_overrides', {}), 'label', 0)
 endfunction

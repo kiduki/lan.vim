@@ -35,7 +35,7 @@ call writefile([
       \ '',
       \ '### 🔥 Blocking Tasks',
       \ '',
-      \ '- [ ] sample_task @step1 +alice p1 due:2026-03-03T11:45 deadline:2026-03-06',
+      \ '- [ ] sample_task @step1 @step2 +alice p1 due:2026-03-03T11:45 deadline:2026-03-06',
       \ '',
       \ '### 📥 Queue',
       \ '',
@@ -97,6 +97,12 @@ let s:deadline_hl = execute('silent highlight lanDeadlineMeta')
 
 if s:label_hl !~# 'ctermfg=196' || s:label_hl !~? 'guifg=#ff0000'
   call s:fail('meta colors runtime: label colors were not applied')
+endif
+if get(b:, 'lan_label_dynamic_enabled', -1) != 0
+  call s:fail('meta colors runtime: label dynamic color must be disabled when label color is configured')
+endif
+if !empty(get(b:, 'lan_label_dynamic_matchids', []))
+  call s:fail('meta colors runtime: label dynamic matches must not remain in fixed mode')
 endif
 if s:assignee_hl !~# 'ctermfg=33' || s:assignee_hl !~? 'guifg=#00aaff'
   call s:fail('meta colors runtime: assignee colors were not applied')

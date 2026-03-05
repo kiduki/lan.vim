@@ -170,6 +170,12 @@ Rules:
 - The first candidate is today. Use `<C-n>` for next and `<C-p>` for previous.
 - In note buffer insert mode, typing `@` or `+` opens completion list.
 - Candidates are collected from existing `@label` and `+assignee` tokens.
+- Label colors are dynamic by default. Different labels (e.g. @aaa/@bbb)
+  get different colors automatically.
+- Dynamic label coloring scans up to 64 unique labels in the buffer to
+  avoid heavy redraw cost.
+- If setup().meta_colors.label is set explicitly, label colors become fixed
+  and unified (dynamic label coloring is disabled).
 
 Metadata highlight colors are configurable via:
 - setup().meta_colors.label
