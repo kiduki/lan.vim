@@ -146,6 +146,9 @@ Rules:
 - due is for planned execution timing.
 - deadline is for hard finish-by date.
 - LanReview uses due for Overdue/DueThisWeek categories.
+- In note buffer insert mode, typing `:` after `due` or `deadline`
+  opens a date completion list (`YYYY-MM-DD`).
+- The first candidate is today. Use `<C-n>` for next and `<C-p>` for previous.
 - In note buffer insert mode, typing `@` or `+` opens completion list.
 - Candidates are collected from existing `@label` and `+assignee` tokens.
 
