@@ -78,6 +78,14 @@ function! s:maybe_define_note_maps() abort
         \ lan#config#map('toggle_fold'), 'n',
         \ ':call lan#fold#toggle_done_fold()<CR>',
         \ 'toggle-fold')
+  call s:maybe_define_note_map(
+        \ '<C-a>', 'n',
+        \ ':call lan#ui#eval_ctrl_ax_map(1)<CR>',
+        \ 'date-inc')
+  call s:maybe_define_note_map(
+        \ '<C-x>', 'n',
+        \ ':call lan#ui#eval_ctrl_ax_map(-1)<CR>',
+        \ 'date-dec')
 endfunction
 
 function! lan#ui#eval_add_auto_map() abort
@@ -85,6 +93,17 @@ function! lan#ui#eval_add_auto_map() abort
     return lan#note_buffer#map_add_auto_keys()
   endif
   return "\<C-o>:call lan#note_buffer#insert_auto()\<CR>"
+endfunction
+
+function! lan#ui#eval_ctrl_ax_map(delta) abort
+  if lan#note_buffer#increment_task_date(a:delta)
+    return
+  endif
+  if a:delta > 0
+    silent! execute "normal! \<C-a>"
+  else
+    silent! execute "normal! \<C-x>"
+  endif
 endfunction
 
 function! s:maybe_define_note_syntax() abort

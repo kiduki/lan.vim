@@ -124,6 +124,11 @@ toggle_fold (default: <Leader>lnz)
     Toggle fold for completed tasks (including deeper indentation).
     Shows folded task count when fold is enabled.
 
+<C-a> / <C-x> (note buffer only)
+    On task lines with due:/deadline:, increment/decrement the date by one day.
+    If cursor is on a due/deadline token, that token is adjusted.
+    If cursor is elsewhere on the task line, due takes priority.
+
 ===============================================================================
 5. Metadata                                                      *lan-metadata*
 
