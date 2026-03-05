@@ -506,6 +506,84 @@ function! lan#note_buffer#eval_date_complete_map(char) abort
   return a:char . "\<C-x>\<C-u>"
 endfunction
 
+function! s:shift_ymd(ymd, delta) abort
+  let l:ts = strptime('%Y-%m-%d', a:ymd)
+  if l:ts < 0
+    return ''
+  endif
+  return strftime('%Y-%m-%d', l:ts + (a:delta * 86400))
+endfunction
+
+function! s:task_date_token_ranges(line) abort
+  let l:out = []
+  let l:start = 0
+  while 1
+    let l:m = matchstrpos(
+          \ a:line,
+          \ '\<\%(due\|deadline\):\d\{4}-\d\{2}-\d\{2}\%(T\d\{2}:\d\{2}\)\?\>',
+          \ l:start)
+    if l:m[0] ==# ''
+      break
+    endif
+    call add(l:out, {'token': l:m[0], 'start': l:m[1], 'end': l:m[2]})
+    let l:start = l:m[2]
+  endwhile
+  return l:out
+endfunction
+
+function! s:pick_date_token(ranges, cursor_col) abort
+  let l:cursor = a:cursor_col - 1
+  for l:r in a:ranges
+    if l:r.start <= l:cursor && l:cursor < l:r.end
+      return l:r
+    endif
+  endfor
+  if !empty(a:ranges)
+    return a:ranges[0]
+  endif
+  return {}
+endfunction
+
+function! lan#note_buffer#increment_task_date(delta) abort
+  if !lan#core#is_note_buffer()
+    return 0
+  endif
+
+  let l:lnum = line('.')
+  let l:line = getline(l:lnum)
+  if l:line !~# lan#core#rx_task()
+    return 0
+  endif
+
+  let l:ranges = s:task_date_token_ranges(l:line)
+  if empty(l:ranges)
+    return 0
+  endif
+  let l:r = s:pick_date_token(l:ranges, col('.'))
+  if empty(l:r)
+    return 0
+  endif
+
+  let l:key_sep = stridx(l:r.token, ':')
+  if l:key_sep < 0
+    return 0
+  endif
+  let l:key = strpart(l:r.token, 0, l:key_sep + 1)
+  let l:value = strpart(l:r.token, l:key_sep + 1)
+  let l:ymd = strpart(l:value, 0, 10)
+  let l:time = strpart(l:value, 10)
+  let l:new_ymd = s:shift_ymd(l:ymd, a:delta)
+  if l:new_ymd ==# ''
+    return 0
+  endif
+
+  let l:new_token = l:key . l:new_ymd . l:time
+  let l:newline = strpart(l:line, 0, l:r.start) . l:new_token . strpart(l:line, l:r.end)
+  call setline(l:lnum, l:newline)
+  call cursor(l:lnum, l:r.start + strlen(l:new_token))
+  return 1
+endfunction
+
 function! lan#note_buffer#insert_auto() abort
   try
     let l:date_lnum = s:find_date_header_from_cursor()

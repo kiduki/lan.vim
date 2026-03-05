@@ -102,6 +102,14 @@ function! s:maybe_define_note_maps() abort
         \ lan#config#map('edit_change'), 'n',
         \ ':call lan#note_buffer#edit_task_text("change")<CR>',
         \ 'edit-change')
+  call s:maybe_define_note_map(
+        \ '<C-a>', 'n',
+        \ ':call lan#ui#eval_ctrl_ax_map(1)<CR>',
+        \ 'date-inc')
+  call s:maybe_define_note_map(
+        \ '<C-x>', 'n',
+        \ ':call lan#ui#eval_ctrl_ax_map(-1)<CR>',
+        \ 'date-dec')
 endfunction
 
 function! lan#ui#eval_add_auto_map() abort
@@ -117,6 +125,17 @@ endfunction
 
 function! lan#ui#eval_meta_complete_map(char) abort
   return lan#note_buffer#eval_meta_complete_map(a:char)
+endfunction
+
+function! lan#ui#eval_ctrl_ax_map(delta) abort
+  if lan#note_buffer#increment_task_date(a:delta)
+    return
+  endif
+  if a:delta > 0
+    silent! execute "normal! \<C-a>"
+  else
+    silent! execute "normal! \<C-x>"
+  endif
 endfunction
 
 function! s:maybe_define_note_syntax() abort

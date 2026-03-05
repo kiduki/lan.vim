@@ -139,6 +139,11 @@ edit_append (default: <Leader>la)
 edit_change (default: <Leader>lc)
     On a task line, clear task text (keep metadata) and enter Insert mode.
 
+<C-a> / <C-x> (note buffer only)
+    On task lines with due:/deadline:, increment/decrement the date by one day.
+    If cursor is on a due/deadline token, that token is adjusted.
+    If cursor is elsewhere on the task line, due takes priority.
+
 ===============================================================================
 5. Metadata                                                      *lan-metadata*
 
