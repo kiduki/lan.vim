@@ -1,6 +1,6 @@
 *Lan* *lan.vim*
 
-lan.vim                                                Last change: 2026-03-02
+lan.vim                                                Last change: 2026-03-05
 
 ===============================================================================
 CONTENTS                                                    *lan-contents*
@@ -40,6 +40,7 @@ and add quick entries.
     Add "!" to include details such as source line number.
     Targets only tasks that exist in today's section, then traces history.
     Uses unsaved note-buffer changes when available.
+    In review buffer, press <C-]> on a task line to jump to note line.
 
 :LanStats
     Show one-line task metrics in command area:
@@ -208,6 +209,10 @@ LanReview categories:
 Task continuity identity for stale calculation:
 - Uses task text + labels + assignees.
 - Ignores priority and due changes.
+
+LanReview output order:
+- Each category is sorted by due ascending, then deadline ascending.
+- Tasks without valid due/deadline values are placed last.
 
 LanStats counters:
 - week_done: tasks completed this week

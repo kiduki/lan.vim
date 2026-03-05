@@ -121,26 +121,109 @@ function! s:task_line(task, detailed) abort
   return l:line
 endfunction
 
-function! s:add_section(lines, title, tasks, detailed) abort
-  call add(a:lines, '## ' . a:title . ' (' . len(a:tasks) . ')')
-  if empty(a:tasks)
-    call add(a:lines, '- none')
-  else
-    for l:task in a:tasks
-      call add(a:lines, s:task_line(l:task, a:detailed))
-    endfor
+function! s:sort_datetime_key(value) abort
+  if a:value =~# '^\d\{4}-\d\{2}-\d\{2}T\d\{2}:\d\{2}$'
+    return a:value
   endif
+  if a:value =~# '^\d\{4}-\d\{2}-\d\{2}$'
+    return a:value . 'T00:00'
+  endif
+  return '9999-12-31T23:59'
+endfunction
+
+function! s:compare_due_deadline(a, b) abort
+  let l:adue = s:sort_datetime_key(get(a:a, 'due', ''))
+  let l:bdue = s:sort_datetime_key(get(a:b, 'due', ''))
+  if l:adue !=# l:bdue
+    return (l:adue <# l:bdue) ? -1 : 1
+  endif
+
+  let l:adead = s:sort_datetime_key(get(a:a, 'deadline', ''))
+  let l:bdead = s:sort_datetime_key(get(a:b, 'deadline', ''))
+  if l:adead !=# l:bdead
+    return (l:adead <# l:bdead) ? -1 : 1
+  endif
+
+  let l:alnum = get(a:a, 'lnum', 0)
+  let l:blnum = get(a:b, 'lnum', 0)
+  if l:alnum == l:blnum
+    return 0
+  endif
+  return (l:alnum < l:blnum) ? -1 : 1
+endfunction
+
+function! s:sort_tasks_by_due_deadline(tasks) abort
+  if len(a:tasks) <= 1
+    return copy(a:tasks)
+  endif
+  return sort(copy(a:tasks), function('s:compare_due_deadline'))
+endfunction
+
+function! s:add_section_with_jump(lines, jump_map, title, tasks, detailed) abort
+  let l:sorted = s:sort_tasks_by_due_deadline(a:tasks)
+  call add(a:lines, '## ' . a:title . ' (' . len(l:sorted) . ')')
+  if empty(l:sorted)
+    call add(a:lines, '- none')
+    call add(a:lines, '')
+    return
+  endif
+
+  for l:task in l:sorted
+    call add(a:lines, s:task_line(l:task, a:detailed))
+    let l:line_nr = len(a:lines)
+    let a:jump_map[l:line_nr] = {'lnum': get(l:task, 'lnum', 0)}
+  endfor
   call add(a:lines, '')
 endfunction
 
-function! s:open_report(lines) abort
+function! s:open_note_at_lnum(target_lnum) abort
+  let l:path = lan#core#note_file_path()
+  let l:bn = bufnr(l:path)
+  if l:bn > 0
+    execute 'silent keepalt buffer ' . l:bn
+  else
+    execute 'silent keepalt edit' fnameescape(l:path)
+  endif
+
+  if line('$') <= 0
+    return
+  endif
+
+  let l:lnum = a:target_lnum
+  if l:lnum <= 0
+    let l:lnum = 1
+  elseif l:lnum > line('$')
+    let l:lnum = line('$')
+  endif
+  call cursor(l:lnum, 1)
+endfunction
+
+function! s:open_report(lines, jump_map) abort
   belowright new
   setlocal buftype=nofile bufhidden=wipe noswapfile nobuflisted
   silent file [lan-review]
   call setline(1, a:lines)
+  let b:lan_review_jump_map = copy(a:jump_map)
+  nnoremap <silent><buffer> <C-]> :call lan#review#jump_from_report()<CR>
   call lan#ui#ensure_meta_syntax()
   setlocal nomodifiable
   normal! gg
+endfunction
+
+function! lan#review#jump_from_report() abort
+  if !exists('b:lan_review_jump_map')
+    echo '[lan] This buffer has no review jump map.'
+    return
+  endif
+
+  let l:current = line('.')
+  if !has_key(b:lan_review_jump_map, l:current)
+    echo '[lan] Place cursor on a review task line.'
+    return
+  endif
+
+  let l:target = get(b:lan_review_jump_map[l:current], 'lnum', 0)
+  call s:open_note_at_lnum(l:target)
 endfunction
 
 function! lan#review#run(qargs, bang) abort
@@ -176,11 +259,12 @@ function! lan#review#run(qargs, bang) abort
         \ ''
         \ ]
 
-  call s:add_section(l:out, 'Overdue', l:cats.overdue, a:bang)
-  call s:add_section(l:out, 'DueThisWeek', l:cats.due_week, a:bang)
-  call s:add_section(l:out, 'HighPriorityStale', l:cats.priority_stale, a:bang)
-  call s:add_section(l:out, 'WaitingStale', l:cats.waiting_stale, a:bang)
+  let l:jump_map = {}
+  call s:add_section_with_jump(l:out, l:jump_map, 'Overdue', l:cats.overdue, a:bang)
+  call s:add_section_with_jump(l:out, l:jump_map, 'DueThisWeek', l:cats.due_week, a:bang)
+  call s:add_section_with_jump(l:out, l:jump_map, 'HighPriorityStale', l:cats.priority_stale, a:bang)
+  call s:add_section_with_jump(l:out, l:jump_map, 'WaitingStale', l:cats.waiting_stale, a:bang)
 
-  call s:open_report(l:out)
+  call s:open_report(l:out, l:jump_map)
   echo '[lan] Review generated.'
 endfunction

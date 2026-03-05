@@ -141,6 +141,31 @@ if s:content !~# 'dup_title @same +carol p3 due:' . s:in_two_days
   call s:fail('review runtime: duplicate title latest task missing')
 endif
 
+let s:dup_idx = match(s:content, 'dup_title @same +carol p3 due:' . s:in_two_days)
+let s:due_idx = match(s:content, 'due_this_week @ops +bob p3 due:' . s:in_two_days . 'T18:30')
+if s:dup_idx < 0 || s:due_idx < 0 || s:dup_idx > s:due_idx
+  call s:fail('review runtime: due/deadline sort order mismatch')
+endif
+
+let s:review_jump_map = maparg('<C-]>', 'n', 0, 1)
+if empty(s:review_jump_map) || !get(s:review_jump_map, 'buffer', 0)
+  call s:fail('review runtime: review jump map <C-]> is missing')
+endif
+
+let s:review_task_lnum = search('dup_title @same +carol p3 due:' . s:in_two_days, 'nw')
+if s:review_task_lnum <= 0
+  call s:fail('review runtime: could not find review task line for jump')
+endif
+call cursor(s:review_task_lnum, 1)
+execute "normal \<C-]>"
+
+if expand('%:p') !=# fnamemodify(s:tmp, ':p')
+  call s:fail('review runtime: <C-]> did not jump to note buffer')
+endif
+if getline('.') !~# 'dup_title @same +carol p3 due:' . s:in_two_days
+  call s:fail('review runtime: <C-]> jumped to unexpected note line')
+endif
+
 let s:parsed = lan#metadata#parse_task_line('- [ ] invalid_due_should_remain due:2026-02-31')
 if get(s:parsed, 'text', '') !~# 'due:2026-02-31'
   call s:fail('review runtime: invalid due token should remain in parsed task text')
