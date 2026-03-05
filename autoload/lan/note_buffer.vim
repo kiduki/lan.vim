@@ -316,6 +316,65 @@ function! lan#note_buffer#can_insert_auto() abort
   return l:prev_char !~# '[ \t]'
 endfunction
 
+function! s:task_prefix_text(line, task) abort
+  let l:indent = matchstr(a:line, '^\s*')
+  let l:state = get(a:task, 'done', 0) ? 'x' : ' '
+  let l:flag = ''
+  if get(a:task, 'progress', 0)
+    let l:flag = '🚩 '
+  elseif get(a:task, 'waiting', 0)
+    let l:flag = '⌛ '
+  endif
+  return l:indent . '- [' . l:state . '] ' . l:flag
+endfunction
+
+function! s:build_task_line(prefix, text, task) abort
+  let l:line = a:prefix . a:text
+  let l:tail = lan#metadata#format_tokens(a:task)
+  if l:tail !=# ''
+    if a:text !=# ''
+      let l:line .= ' '
+    endif
+    let l:line .= l:tail
+  endif
+  return l:line
+endfunction
+
+function! lan#note_buffer#edit_task_text(mode) abort
+  if !lan#core#require_note_buffer()
+    return
+  endif
+
+  let l:lnum = line('.')
+  let l:line = getline(l:lnum)
+  let l:task = lan#metadata#parse_task_line(l:line)
+  if !get(l:task, 'is_task', 0)
+    echo '[lan] Cursor is not on a task line.'
+    return
+  endif
+
+  let l:prefix = s:task_prefix_text(l:line, l:task)
+  let l:text = get(l:task, 'text', '')
+
+  if a:mode ==# 'change'
+    call setline(l:lnum, s:build_task_line(l:prefix, '', l:task))
+    call cursor(l:lnum, strlen(l:prefix) + 1)
+    startinsert
+    return
+  endif
+
+  let l:newline = s:build_task_line(l:prefix, l:text, l:task)
+  call setline(l:lnum, l:newline)
+  if a:mode ==# 'append'
+    call cursor(l:lnum, strlen(l:prefix . l:text) + 1)
+    startinsert!
+    return
+  endif
+
+  call cursor(l:lnum, strlen(l:prefix) + 1)
+  startinsert
+endfunction
+
 function! lan#note_buffer#insert_auto() abort
   try
     let l:date_lnum = s:find_date_header_from_cursor()

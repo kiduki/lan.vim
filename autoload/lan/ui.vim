@@ -78,6 +78,18 @@ function! s:maybe_define_note_maps() abort
         \ lan#config#map('toggle_fold'), 'n',
         \ ':call lan#fold#toggle_done_fold()<CR>',
         \ 'toggle-fold')
+  call s:maybe_define_note_map(
+        \ lan#config#map('edit_insert'), 'n',
+        \ ':call lan#note_buffer#edit_task_text("insert")<CR>',
+        \ 'edit-insert')
+  call s:maybe_define_note_map(
+        \ lan#config#map('edit_append'), 'n',
+        \ ':call lan#note_buffer#edit_task_text("append")<CR>',
+        \ 'edit-append')
+  call s:maybe_define_note_map(
+        \ lan#config#map('edit_change'), 'n',
+        \ ':call lan#note_buffer#edit_task_text("change")<CR>',
+        \ 'edit-change')
 endfunction
 
 function! lan#ui#eval_add_auto_map() abort

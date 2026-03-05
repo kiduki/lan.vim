@@ -18,7 +18,10 @@ let s:config = {
       \   'toggle_done': '<Leader>lanx',
       \   'toggle_progress': '<Leader>lanp',
       \   'toggle_waiting': '<Leader>lanw',
-      \   'toggle_fold': '<Leader>lanz'
+      \   'toggle_fold': '<Leader>lanz',
+      \   'edit_insert': '<Leader>li',
+      \   'edit_append': '<Leader>la',
+      \   'edit_change': '<Leader>lc'
       \ }
       \ }
 
@@ -40,7 +43,10 @@ function! lan#config#init_defaults() abort
         \   'toggle_done': '<Leader>lanx',
         \   'toggle_progress': '<Leader>lanp',
         \   'toggle_waiting': '<Leader>lanw',
-        \   'toggle_fold': '<Leader>lanz'
+        \   'toggle_fold': '<Leader>lanz',
+        \   'edit_insert': '<Leader>li',
+        \   'edit_append': '<Leader>la',
+        \   'edit_change': '<Leader>lc'
         \ }
         \ }
 endfunction
