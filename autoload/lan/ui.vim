@@ -63,6 +63,18 @@ function! s:maybe_define_note_maps() abort
         \ 'lan#ui#eval_add_auto_map()',
         \ 'add-auto')
   call s:maybe_define_note_map(
+        \ ':', 'i',
+        \ 'lan#ui#eval_date_complete_map(":")',
+        \ 'date-complete')
+  call s:maybe_define_note_map(
+        \ '@', 'i',
+        \ 'lan#ui#eval_meta_complete_map("@")',
+        \ 'meta-complete-label')
+  call s:maybe_define_note_map(
+        \ '+', 'i',
+        \ 'lan#ui#eval_meta_complete_map("+")',
+        \ 'meta-complete-assignee')
+  call s:maybe_define_note_map(
         \ lan#config#map('toggle_done'), 'n',
         \ ':call lan#task_toggle#done()<CR>',
         \ 'toggle-done')
@@ -79,6 +91,18 @@ function! s:maybe_define_note_maps() abort
         \ ':call lan#fold#toggle_done_fold()<CR>',
         \ 'toggle-fold')
   call s:maybe_define_note_map(
+        \ lan#config#map('edit_insert'), 'n',
+        \ ':call lan#note_buffer#edit_task_text("insert")<CR>',
+        \ 'edit-insert')
+  call s:maybe_define_note_map(
+        \ lan#config#map('edit_append'), 'n',
+        \ ':call lan#note_buffer#edit_task_text("append")<CR>',
+        \ 'edit-append')
+  call s:maybe_define_note_map(
+        \ lan#config#map('edit_change'), 'n',
+        \ ':call lan#note_buffer#edit_task_text("change")<CR>',
+        \ 'edit-change')
+  call s:maybe_define_note_map(
         \ '<C-a>', 'n',
         \ ':call lan#ui#eval_ctrl_ax_map(1)<CR>',
         \ 'date-inc')
@@ -93,6 +117,14 @@ function! lan#ui#eval_add_auto_map() abort
     return lan#note_buffer#map_add_auto_keys()
   endif
   return "\<C-o>:call lan#note_buffer#insert_auto()\<CR>"
+endfunction
+
+function! lan#ui#eval_date_complete_map(char) abort
+  return lan#note_buffer#eval_date_complete_map(a:char)
+endfunction
+
+function! lan#ui#eval_meta_complete_map(char) abort
+  return lan#note_buffer#eval_meta_complete_map(a:char)
 endfunction
 
 function! lan#ui#eval_ctrl_ax_map(delta) abort

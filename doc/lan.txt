@@ -59,6 +59,9 @@ and add quick entries.
     Toggle waiting flag "⌛" for the task under cursor.
     Does not apply to done tasks.
 
+:LanFoldUnstarted
+    Fold unfinished tasks that are neither progress ("🚩") nor waiting ("⌛").
+
 ===============================================================================
 3. Setup                                                             *lan-setup*
 
@@ -85,6 +88,9 @@ Example: >
           \   'toggle_progress': '<Leader>lnp',
           \   'toggle_waiting': '<Leader>lnw',
           \   'toggle_fold': '<Leader>lnz',
+          \   'edit_insert': '<Leader>li',
+          \   'edit_append': '<Leader>la',
+          \   'edit_change': '<Leader>lc',
           \ },
           \ })
   augroup END
@@ -124,6 +130,15 @@ toggle_fold (default: <Leader>lnz)
     Toggle fold for completed tasks (including deeper indentation).
     Shows folded task count when fold is enabled.
 
+edit_insert (default: <Leader>li)
+    On a task line, move to task text start and enter Insert mode.
+
+edit_append (default: <Leader>la)
+    On a task line, move to task text end and enter Insert mode.
+
+edit_change (default: <Leader>lc)
+    On a task line, clear task text (keep metadata) and enter Insert mode.
+
 <C-a> / <C-x> (note buffer only)
     On task lines with due:/deadline:, increment/decrement the date by one day.
     If cursor is on a due/deadline token, that token is adjusted.
@@ -148,6 +163,11 @@ Rules:
 - due is for planned execution timing.
 - deadline is for hard finish-by date.
 - LanReview uses due for Overdue/DueThisWeek categories.
+- In note buffer insert mode, typing `:` after `due` or `deadline`
+  opens a date completion list (`YYYY-MM-DD`).
+- The first candidate is today. Use `<C-n>` for next and `<C-p>` for previous.
+- In note buffer insert mode, typing `@` or `+` opens completion list.
+- Candidates are collected from existing `@label` and `+assignee` tokens.
 
 Metadata highlight colors are configurable via:
 - setup().meta_colors.label
