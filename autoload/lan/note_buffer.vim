@@ -375,6 +375,137 @@ function! lan#note_buffer#edit_task_text(mode) abort
   startinsert
 endfunction
 
+function! s:add_unique_text(list, value) abort
+  if a:value ==# '' || index(a:list, a:value) >= 0
+    return
+  endif
+  call add(a:list, a:value)
+endfunction
+
+function! s:collect_meta_candidates(prefix_char) abort
+  let l:out = []
+  for l:line in getline(1, '$')
+    let l:start = 0
+    while 1
+      let l:m = matchstrpos(
+            \ l:line,
+            \ '[@+]\%([0-9A-Za-z_]\|[^ -~[:space:]]\)\%([0-9A-Za-z_-]\|[^ -~[:space:]]\)*',
+            \ l:start)
+      let l:token = l:m[0]
+      if l:token ==# ''
+        break
+      endif
+      if l:token[0] ==# a:prefix_char
+        call s:add_unique_text(l:out, strpart(l:token, 1))
+      endif
+      let l:start = l:m[2]
+    endwhile
+  endfor
+  call sort(l:out)
+  return l:out
+endfunction
+
+function! s:meta_complete_startcol(prefix_char) abort
+  let l:line = getline('.')
+  let l:before = strpart(l:line, 0, col('.') - 1)
+  let l:start = strridx(l:before, a:prefix_char)
+  if l:start < 0
+    return -1
+  endif
+  if strpart(l:before, l:start + 1) =~# '[[:space:]]'
+    return -1
+  endif
+  return l:start + 1
+endfunction
+
+function! s:meta_complete_items(prefix_char, base) abort
+  let l:items = []
+  for l:word in s:collect_meta_candidates(a:prefix_char)
+    if a:base ==# '' || stridx(l:word, a:base) ==# 0
+      call add(l:items, {'word': l:word})
+    endif
+  endfor
+  return l:items
+endfunction
+
+function! lan#note_buffer#meta_completefunc(findstart, base) abort
+  let l:prefix = get(b:, 'lan_meta_complete_prefix', '')
+  if l:prefix ==# ''
+    return a:findstart ? -2 : []
+  endif
+
+  if a:findstart
+    return s:meta_complete_startcol(l:prefix)
+  endif
+  return s:meta_complete_items(l:prefix, a:base)
+endfunction
+
+function! lan#note_buffer#eval_meta_complete_map(char) abort
+  if !lan#core#is_note_buffer()
+    return a:char
+  endif
+
+  let b:lan_meta_complete_prefix = a:char
+  let &l:completefunc = 'lan#note_buffer#meta_completefunc'
+  return a:char . "\<C-x>\<C-u>"
+endfunction
+
+function! s:today_ymd() abort
+  return strftime('%Y-%m-%d')
+endfunction
+
+function! s:date_complete_candidates() abort
+  let l:out = [s:today_ymd()]
+  for l:d in range(1, 14)
+    call add(l:out, strftime('%Y-%m-%d', localtime() + (l:d * 86400)))
+    call add(l:out, strftime('%Y-%m-%d', localtime() - (l:d * 86400)))
+  endfor
+  return l:out
+endfunction
+
+function! s:date_complete_startcol() abort
+  let l:line = getline('.')
+  let l:before = strpart(l:line, 0, col('.') - 1)
+  let l:idx = match(l:before, '\<\%(due\|deadline\):[0-9-]*$')
+  if l:idx < 0
+    return -1
+  endif
+  let l:sep = stridx(strpart(l:before, l:idx), ':')
+  if l:sep < 0
+    return -1
+  endif
+  return l:idx + l:sep + 1
+endfunction
+
+function! lan#note_buffer#date_completefunc(findstart, base) abort
+  if a:findstart
+    return s:date_complete_startcol()
+  endif
+
+  let l:items = []
+  for l:date in s:date_complete_candidates()
+    if a:base ==# '' || stridx(l:date, a:base) ==# 0
+      call add(l:items, {'word': l:date})
+    endif
+  endfor
+  return l:items
+endfunction
+
+function! lan#note_buffer#eval_date_complete_map(char) abort
+  if !lan#core#is_note_buffer()
+    return a:char
+  endif
+
+  let l:line = getline('.')
+  let l:before = strpart(l:line, 0, col('.') - 1)
+  if l:before !~# '\<\%(due\|deadline\)$'
+    return a:char
+  endif
+
+  let &l:completefunc = 'lan#note_buffer#date_completefunc'
+  return a:char . "\<C-x>\<C-u>"
+endfunction
+
 function! lan#note_buffer#insert_auto() abort
   try
     let l:date_lnum = s:find_date_header_from_cursor()
