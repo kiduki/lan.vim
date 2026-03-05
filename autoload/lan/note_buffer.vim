@@ -316,6 +316,62 @@ function! lan#note_buffer#can_insert_auto() abort
   return l:prev_char !~# '[ \t]'
 endfunction
 
+function! s:today_ymd() abort
+  return strftime('%Y-%m-%d')
+endfunction
+
+function! s:date_complete_candidates() abort
+  let l:out = [s:today_ymd()]
+  for l:d in range(1, 14)
+    call add(l:out, strftime('%Y-%m-%d', localtime() + (l:d * 86400)))
+    call add(l:out, strftime('%Y-%m-%d', localtime() - (l:d * 86400)))
+  endfor
+  return l:out
+endfunction
+
+function! s:date_complete_startcol() abort
+  let l:line = getline('.')
+  let l:before = strpart(l:line, 0, col('.') - 1)
+  let l:idx = match(l:before, '\<\%(due\|deadline\):[0-9-]*$')
+  if l:idx < 0
+    return -1
+  endif
+  let l:sep = stridx(strpart(l:before, l:idx), ':')
+  if l:sep < 0
+    return -1
+  endif
+  return l:idx + l:sep + 1
+endfunction
+
+function! lan#note_buffer#date_completefunc(findstart, base) abort
+  if a:findstart
+    return s:date_complete_startcol()
+  endif
+
+  let l:items = []
+  for l:date in s:date_complete_candidates()
+    if a:base ==# '' || stridx(l:date, a:base) ==# 0
+      call add(l:items, {'word': l:date})
+    endif
+  endfor
+  return l:items
+endfunction
+
+function! lan#note_buffer#eval_date_complete_map(char) abort
+  if !lan#core#is_note_buffer()
+    return a:char
+  endif
+
+  let l:line = getline('.')
+  let l:before = strpart(l:line, 0, col('.') - 1)
+  if l:before !~# '\<\%(due\|deadline\)$'
+    return a:char
+  endif
+
+  let &l:completefunc = 'lan#note_buffer#date_completefunc'
+  return a:char . "\<C-x>\<C-u>"
+endfunction
+
 function! lan#note_buffer#insert_auto() abort
   try
     let l:date_lnum = s:find_date_header_from_cursor()
