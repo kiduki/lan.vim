@@ -59,6 +59,9 @@ and add quick entries.
     Toggle waiting flag "⌛" for the task under cursor.
     Does not apply to done tasks.
 
+:LanFoldUnstarted
+    Fold unfinished tasks that are neither progress ("🚩") nor waiting ("⌛").
+
 ===============================================================================
 3. Setup                                                             *lan-setup*
 

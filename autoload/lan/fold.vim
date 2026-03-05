@@ -50,6 +50,42 @@ function! s:fold_done_tasks() abort
   return l:folded_groups
 endfunction
 
+function! s:fold_plain_open_tasks() abort
+  let l:today_lnum = lan#note_buffer#find_line_exact(lan#core#today_header())
+  if l:today_lnum == 0
+    return 0
+  endif
+
+  let l:lnum = l:today_lnum + 1
+  let l:last = lan#note_buffer#section_end(l:today_lnum)
+  let l:folded = 0
+  while l:lnum <= l:last
+    let l:line = getline(l:lnum)
+    if l:line =~# lan#core#rx_task()
+      let l:task = lan#metadata#parse_task_line(l:line)
+      if !get(l:task, 'done', 0) && !get(l:task, 'progress', 0) && !get(l:task, 'waiting', 0)
+        let l:root_indent = indent(l:lnum)
+        let l:end = l:lnum
+        for l:i in range(l:lnum + 1, l:last)
+          if s:is_section_break_lnum(l:i)
+            break
+          endif
+          if indent(l:i) <= l:root_indent
+            break
+          endif
+          let l:end = l:i
+        endfor
+        execute l:lnum . ',' . l:end . 'fold'
+        let l:folded += 1
+        let l:lnum = l:end + 1
+        continue
+      endif
+    endif
+    let l:lnum += 1
+  endwhile
+  return l:folded
+endfunction
+
 function! s:enable_done_folds() abort
   if !exists('b:lan_prev_foldmethod')
     let b:lan_prev_foldmethod = &l:foldmethod
@@ -87,4 +123,23 @@ function! lan#fold#toggle_done_fold() abort
   else
     call s:enable_done_folds()
   endif
+endfunction
+
+function! lan#fold#fold_unstarted_open_tasks() abort
+  if !lan#core#require_note_buffer()
+    return
+  endif
+  if !exists('b:lan_prev_foldmethod')
+    let b:lan_prev_foldmethod = &l:foldmethod
+  endif
+  if !exists('b:lan_prev_foldenable')
+    let b:lan_prev_foldenable = &l:foldenable
+  endif
+
+  setlocal foldmethod=manual
+  setlocal foldenable
+  call s:clear_manual_folds()
+  let l:folded = s:fold_plain_open_tasks()
+  silent! normal! zM
+  echo '[lan] Folded ' . l:folded . ' unstarted task(s).'
 endfunction
