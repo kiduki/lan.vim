@@ -357,8 +357,15 @@ function! lan#note_buffer#edit_task_text(mode) abort
   let l:text = get(l:task, 'text', '')
 
   if a:mode ==# 'change'
+    let l:insert_col = strlen(l:prefix) + 1
+    if l:text !=# ''
+      let l:text_idx = stridx(l:line, l:text)
+      if l:text_idx >= 0
+        let l:insert_col = l:text_idx + 1
+      endif
+    endif
     call setline(l:lnum, s:build_task_line(l:prefix, '', l:task))
-    call cursor(l:lnum, strlen(l:prefix) + 1)
+    call cursor(l:lnum, l:insert_col)
     startinsert
     return
   endif
