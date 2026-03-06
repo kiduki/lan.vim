@@ -52,6 +52,9 @@ endif
 stopinsert
 
 call lan#note_buffer#edit_task_text('change')
+if col('.') != strlen('- [ ] ') + 1
+  call s:fail('task edit maps runtime: change mode cursor position mismatch')
+endif
 stopinsert
 if getline(s:task) !=# '- [ ] @x +alice p1 due:2026-03-05'
   call s:fail('task edit maps runtime: change mode did not preserve metadata')
