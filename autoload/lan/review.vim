@@ -178,14 +178,22 @@ endfunction
 
 function! s:open_note_at_lnum(target_lnum) abort
   let l:path = lan#core#note_file_path()
+  let l:review_bufnr = bufnr('%')
   let l:bn = bufnr(l:path)
-  if l:bn > 0
+  let l:note_wins = (l:bn > 0) ? win_findbuf(l:bn) : []
+
+  if !empty(l:note_wins)
+    call win_gotoid(l:note_wins[0])
+  elseif l:bn > 0
     execute 'silent keepalt buffer ' . l:bn
   else
     execute 'silent keepalt edit' fnameescape(l:path)
   endif
 
   if line('$') <= 0
+    if bufexists(l:review_bufnr)
+      execute 'silent! bwipeout ' . l:review_bufnr
+    endif
     return
   endif
 
@@ -196,6 +204,9 @@ function! s:open_note_at_lnum(target_lnum) abort
     let l:lnum = line('$')
   endif
   call cursor(l:lnum, 1)
+  if bufexists(l:review_bufnr)
+    execute 'silent! bwipeout ' . l:review_bufnr
+  endif
 endfunction
 
 function! s:open_report(lines, jump_map) abort

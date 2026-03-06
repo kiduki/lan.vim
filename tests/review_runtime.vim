@@ -152,6 +152,7 @@ if empty(s:review_jump_map) || !get(s:review_jump_map, 'buffer', 0)
   call s:fail('review runtime: review jump map <C-]> is missing')
 endif
 
+let s:review_bufnr = bufnr('%')
 let s:review_task_lnum = search('dup_title @same +carol p3 due:' . s:in_two_days, 'nw')
 if s:review_task_lnum <= 0
   call s:fail('review runtime: could not find review task line for jump')
@@ -164,6 +165,9 @@ if expand('%:p') !=# fnamemodify(s:tmp, ':p')
 endif
 if getline('.') !~# 'dup_title @same +carol p3 due:' . s:in_two_days
   call s:fail('review runtime: <C-]> jumped to unexpected note line')
+endif
+if bufexists(s:review_bufnr)
+  call s:fail('review runtime: review buffer should be closed after <C-]> jump')
 endif
 
 let s:parsed = lan#metadata#parse_task_line('- [ ] invalid_due_should_remain due:2026-02-31')
